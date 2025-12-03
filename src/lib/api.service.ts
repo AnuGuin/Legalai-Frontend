@@ -9,7 +9,7 @@ interface ApiResponse<T> {
 interface Message {
   id: string;
   content: string;
-  role: "USER" | "ASSISTANT" | "SYSTEM";
+  role: "USER" | "ASSISTANT";
   createdAt: string;
   attachments?: string[];
   metadata?: any;
@@ -53,7 +53,6 @@ interface Translation {
 }
 
 class ApiService {
-  // Custom error class to surface HTTP status and body from API errors
   private ApiError = class ApiError extends Error {
     status: number
     body: any
@@ -79,7 +78,6 @@ class ApiService {
       ...options.headers as Record<string, string>,
     };
 
-    // Only add Content-Type for non-FormData requests
     if (!(options.body instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
     }
@@ -90,14 +88,11 @@ class ApiService {
 
     try {
       const url = `${NEXT_PUBLIC_API_URL}${endpoint}`;
-      // Prepare a small, safe representation of the body for debugging logs
       let requestBodyForLog: any = undefined;
       try {
         if (options.body instanceof FormData) {
-          // List keys for FormData (do not log file contents)
           requestBodyForLog = Array.from((options.body as FormData).keys());
         } else if (typeof options.body === 'string') {
-          // Try to JSON.parse for nicer display, otherwise keep as string (trimmed)
           try {
             requestBodyForLog = JSON.parse(options.body as string);
           } catch {
@@ -116,25 +111,19 @@ class ApiService {
       });
 
       if (!response.ok) {
-        // Try to read raw text to preserve any validation details the server returns
         const responseText = await response.text().catch(() => '');
         let errorData: any = undefined;
         try {
           errorData = responseText ? JSON.parse(responseText) : undefined;
         } catch {
-          // not JSON, keep raw text
+          //error
         }
 
         const errorMessageFromBody = (errorData && (errorData.message || errorData.error)) || responseText || `HTTP error! status: ${response.status}`;
-
-        // Log both the raw response text and any parsed JSON to make
-        // debugging server-side validation errors (422) easier to see.
         console.error('API Error: url=', url, ' status=', response.status, ' statusText=', response.statusText)
         console.error('API Error - request body (preview):', requestBodyForLog)
         console.error('API Error - raw responseText (preview):', responseText && responseText.slice ? responseText.slice(0, 2000) : responseText)
         console.error('API Error - parsed JSON body:', errorData)
-
-        // Throw a richer error object so callers (and tests) can inspect status/body
         throw new this.ApiError(response.status, `HTTP ${response.status}: ${errorMessageFromBody}`, errorData ?? responseText);
       }
 
@@ -147,9 +136,6 @@ class ApiService {
 
   // ==================== Conversation APIs ====================
 
-  /**
-   * Create a new conversation
-   */
   async createConversation(
     mode: 'NORMAL' | 'AGENTIC',
     title?: string,
@@ -178,9 +164,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Get all conversations for the user
-   */
   async getConversations(): Promise<Conversation[]> {
     const response = await this.request<ApiResponse<Conversation[]>>(
       '/api/chat/conversations'
@@ -198,9 +181,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Get a specific conversation with all messages
-   */
   async getConversationMessages(conversationId: string): Promise<Conversation> {
     const response = await this.request<ApiResponse<Conversation>>(
       `/api/chat/conversations/${conversationId}`
@@ -216,9 +196,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Get conversation info (without messages)
-   */
   async getConversationInfo(conversationId: string): Promise<Conversation> {
     const response = await this.request<ApiResponse<Conversation>>(
       `/api/chat/conversations/${conversationId}/info`
@@ -231,9 +208,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Send a message in a conversation
-   */
   async sendMessage(
     conversationId: string,
     message: string,
@@ -244,15 +218,12 @@ class ApiService {
     let headers: HeadersInit = {};
 
     if (file) {
-      // Use FormData for file uploads
       const formData = new FormData();
       formData.append('message', message);
       formData.append('mode', mode);
       formData.append('file', file);
       body = formData;
-      // Don't set Content-Type, let browser set it with boundary
     } else {
-      // Use JSON for text-only messages
       body = JSON.stringify({ message, mode });
       headers['Content-Type'] = 'application/json';
     }
@@ -273,9 +244,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Delete a conversation
-   */
   async deleteConversation(conversationId: string): Promise<void> {
     const response = await this.request<ApiResponse<void>>(
       `/api/chat/conversations/${conversationId}`,
@@ -289,9 +257,6 @@ class ApiService {
     }
   }
 
-  /**
-   * Delete all conversations
-   */
   async deleteAllConversations(): Promise<{ deletedCount: number }> {
     const response = await this.request<ApiResponse<{ deletedCount: number }>>(
       '/api/chat/conversations',
@@ -307,9 +272,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Share or unshare a conversation. Returns a link when sharing is enabled.
-   */
   async shareConversation(conversationId: string, share: boolean): Promise<ShareConversationResponse> {
     const response = await this.request<ApiResponse<ShareConversationResponse>>(
       `/api/chat/conversations/${conversationId}/share`,
@@ -326,9 +288,6 @@ class ApiService {
     return response.data;
   }
 
-  /**
-   * Get a shared conversation by secure link (public endpoint)
-   */
   async getSharedConversation(shareLink: string): Promise<{ userName: string; conversation: Conversation }> {
     const response = await this.request<ApiResponse<{ userName: string; conversation: Conversation }>>(
       `/api/chat/shared/${encodeURIComponent(shareLink)}`
@@ -343,9 +302,6 @@ class ApiService {
 
   // ==================== Translation APIs ====================
 
-  /**
-   * Translate text
-   */
   async translateText(params: {
     text: string;
     sourceLang: string;
@@ -362,9 +318,6 @@ class ApiService {
     return response;
   }
 
-  /**
-   * Detect language of text
-   */
   async detectLanguage(text: string): Promise<ApiResponse<{ language: string; display_name: string }>> {
     const response = await this.request<ApiResponse<{ language: string; display_name: string }>>(
       '/api/translation/detect-language',
@@ -377,9 +330,6 @@ class ApiService {
     return response;
   }
 
-  /**
-   * Get translation history
-   */
   async getTranslationHistory(): Promise<ApiResponse<Translation[]>> {
     const response = await this.request<ApiResponse<Translation[]>>(
       '/api/translation/history'

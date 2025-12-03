@@ -23,7 +23,7 @@ export function useChat() {
         ...conv,
         messages: conv.messages?.map(msg => ({
           ...msg,
-          role: msg.role.toLowerCase() as "user" | "assistant" | "system"
+          role: msg.role.toLowerCase() as "user" | "assistant"
         })) || [],
         lastMessage: conv.messages?.[conv.messages.length - 1]?.content || ''
       }));
@@ -81,7 +81,7 @@ export function useChat() {
               ...fullConversation,
               messages: fullConversation.messages?.map(msg => ({
                 ...msg,
-                role: msg.role.toLowerCase() as "user" | "assistant" | "system"
+                role: msg.role.toLowerCase() as "user" | "assistant"
               })) || [],
               lastMessage: fullConversation.messages?.[fullConversation.messages.length - 1]?.content || ''
             }

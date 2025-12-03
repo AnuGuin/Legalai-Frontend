@@ -1,382 +1,381 @@
-import { useState, useRef, useEffect } from "react"
-import ChatSidebar from "@/components/misc/chat-sidebar"
-import { ChatMessagesArea } from "./chat-message"
-import { ChatModeSelector } from "../misc/mode-selector"
-import { useToast } from "@/hooks/use-toast"
-import { apiService, type Conversation as BackendConversation, type Message as BackendMessage } from "@/lib/api.service"
-import { type Message, type MessageRole, type Conversation } from "@/types/chat.types"
-import { ConversationSkeleton } from "./conversation-skeleton"
-import { DeleteConversationDialog } from "./delete-conversation-dialog"
+"use client";
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ChatSidebar from "@/components/misc/chat-sidebar";
+import { ChatMessagesArea } from "./chat-message";
+import { ChatModeSelector } from "../misc/mode-selector";
+import { useToast } from "@/hooks/use-toast";
+import { apiService, type Message as BackendMessage } from "@/lib/api.service";
+import { type Message, type Conversation } from "@/types/chat.types";
+import { ConversationSkeleton } from "./conversation-skeleton";
+import { DeleteConversationDialog } from "./delete-conversation-dialog";
+import { useRouter } from "next/navigation";
+import { useStream } from "@/hooks/use-stream";
 
 interface ChatInterfaceProps {
-  user: { name: string; email: string; avatar?: string }
-  onLogout: () => void
+  user: { name: string; email: string; avatar?: string };
+  onLogout: () => void;
 }
 
-// Transform backend message format to frontend format
 function transformMessage(msg: BackendMessage): Message {
   return {
     id: msg.id,
+    uiKey: msg.id,
     content: msg.content,
-    role: (msg.role === "USER" ? "user" : msg.role === "ASSISTANT" ? "assistant" : "system") as MessageRole,
+    role:
+      msg.role === "USER" ? "user" : msg.role === "ASSISTANT" ? "assistant" : "system",
     attachments: msg.attachments,
     metadata: msg.metadata,
-    createdAt: msg.createdAt
-  }
+    createdAt: msg.createdAt,
+  } as Message;
 }
 
-export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
-  const [isNewConversationSelected, setIsNewConversationSelected] = useState(false)
-  const [selectedMode, setSelectedMode] = useState<'chat' | 'agentic'>('chat')
-  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
-  const [streamingContent, setStreamingContent] = useState<string>("")
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const messagesAreaRef = useRef<{ scrollToBottom: () => void; scrollToTop: () => void }>(null)
-  const { toast } = useToast()
-
-  const activeConversation = conversations.find(c => c.id === activeConversationId)
-
-  // Load conversations on mount
-  useEffect(() => {
-    loadConversations()
-  }, [])
-
-  const loadConversations = async () => {
-    try {
-      setIsLoadingConversations(true)
-      const fetchedConversations = await apiService.getConversations()
-      
-      console.log('Fetched conversations:', fetchedConversations)
-      
-      // Transform conversations to include messages array
-      const transformedConversations = fetchedConversations.map(conv => {
-        const transformedMessages = conv.messages?.map(transformMessage) || []
-        console.log(`Conversation ${conv.id} messages:`, transformedMessages)
-        return {
-          ...conv,
-          messages: transformedMessages,
-          lastMessage: transformedMessages[transformedMessages.length - 1]?.content || ''
-        }
-      })
-      
-      setConversations(transformedConversations)
-    } catch (error) {
-      console.error('Failed to load conversations:', error)
-      toast({
-        title: "Failed to load conversations",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoadingConversations(false)
+function mergeMessages(currentMessages: Message[], newMessages: Message[]): Message[] {
+  const currentMap = new Map(currentMessages.map(m => [m.id, m]));
+  const tempUserMessages = currentMessages.filter(m => m.id.startsWith('temp-') && m.role === 'user');
+  
+  return newMessages.map(newMsg => {
+    if (currentMap.has(newMsg.id)) {
+      const current = currentMap.get(newMsg.id)!;
+      return { ...newMsg, uiKey: current.uiKey || current.id };
     }
-  }
-
-  const handleModeChange = (mode: string) => {
-    setSelectedMode(mode as 'chat' | 'agentic')
-  }
-
-  // Stream text effect for AI responses
-  const streamText = (text: string, messageId: string, conversationId: string) => {
-    const words = text.split(' ')
-    let currentIndex = 0
     
-    const streamInterval = setInterval(() => {
-      if (currentIndex >= words.length) {
-        clearInterval(streamInterval)
-        setStreamingMessageId(null)
-        setStreamingContent("")
-        return
+    if (newMsg.role === 'user') {
+      const match = tempUserMessages.find(temp => temp.content === newMsg.content);
+      if (match) {
+        return { ...newMsg, uiKey: match.uiKey || match.id };
       }
+    }
+    
+    return { ...newMsg, uiKey: newMsg.id };
+  });
+}
 
-      const wordsToAdd = Math.min(3, words.length - currentIndex)
-      currentIndex += wordsToAdd
-      const nextChunk = words.slice(0, currentIndex).join(' ')
-      setStreamingContent(nextChunk)
-      
-      setConversations(prev => prev.map(conv => 
-        conv.id === conversationId
-          ? { 
-              ...conv, 
-              messages: conv.messages?.map(msg =>
-                msg.id === messageId ? { ...msg, content: nextChunk } : msg
-              ) || [],
-              lastMessage: nextChunk
-            }
-          : conv
-      ))
-    }, 60)
+const BackgroundLayer: React.FC = () => (
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      background: "rgb(33, 33, 33)",
+      backgroundSize: "30px 30px",
+      backgroundPosition: "0 0",
+    }}
+  />
+);
 
-    return () => clearInterval(streamInterval)
-  }
+export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [isLoadingActiveConversation, setIsLoadingActiveConversation] = useState(false);
+  const [isNewConversationSelected, setIsNewConversationSelected] = useState(false);
+  const [selectedMode, setSelectedMode] = useState<"chat" | "agentic">("chat");
+  const [messageId, setMessageId] = useState<string | null>(null);
+  const { streamingContent, startStreaming } = useStream();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const messagesAreaRef = useRef<{ scrollToBottom: () => void; scrollToTop: () => void } | null>(
+    null
+  );
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleSendMessage = async (content: string, file?: File) => {
-    if (!content.trim() && !file) return
+  const activeConversation = useMemo(
+    () => conversations.find((c) => c.id === activeConversationId) ?? null,
+    [conversations, activeConversationId]
+  );
 
-    try {
-      let currentConversation = activeConversation
-      let conversationId = activeConversationId
+  const handleErrorToast = useCallback(
+    (title: string, error: unknown, defaultMessage = "Please try again") => {
+      console.error(title, error);
+      const message =
+        (error as any)?.body?.message ||
+        (error instanceof Error ? error.message : defaultMessage);
+      toast({
+        title,
+        description: message,
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
 
-      // Create new conversation if none exists
-      if (!currentConversation) {
-        setIsLoading(true)
-        const mode = selectedMode === 'chat' ? 'NORMAL' : 'AGENTIC'
-        const title = content.length > 50 ? content.substring(0, 50) + "..." : content
-        
-        const newConv = await apiService.createConversation(mode, title)
-        
-        const transformedConv = {
-          ...newConv,
-          messages: [],
-          lastMessage: content
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setIsLoadingConversations(true);
+      try {
+        const fetched = await apiService.getConversations();
+        if (!mounted) return;
+        const transformed = fetched.map((conv) => {
+          const transformedMessages = conv.messages?.map(transformMessage) || [];
+          return {
+            ...conv,
+            messages: transformedMessages,
+            lastMessage: transformedMessages[transformedMessages.length - 1]?.content || "",
+          };
+        });
+        setConversations(transformed);
+      } catch (err) {
+        handleErrorToast("Failed to load conversations", err);
+      } finally {
+        if (mounted) setIsLoadingConversations(false);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [handleErrorToast]);
+
+  const handleModeChange = useCallback((mode: string) => {
+    setSelectedMode(mode as "chat" | "agentic");
+  }, []);
+
+  const updateConversationById = useCallback(
+    (id: string, updater: (conv: Conversation | undefined) => Conversation) => {
+      setConversations((prev) =>
+        prev.map((conv) => (conv.id === id ? updater(conv) : conv))
+      );
+    },
+    []
+  );
+
+  const handleSendMessage = useCallback(
+    async (content: string, file?: File) => {
+      if (!content.trim() && !file) return;
+      setIsLoading(true);
+
+      try {
+        let convId = activeConversationId;
+        let localConversation = activeConversation;
+
+        if (!localConversation) {
+          const mode = selectedMode === "chat" ? "NORMAL" : "AGENTIC";
+          const title = content.length > 50 ? `${content.slice(0, 50)}...` : content;
+          const newConv = await apiService.createConversation(mode, title);
+
+          const transformedConv: Conversation = {
+            ...newConv,
+            messages: [],
+            lastMessage: content,
+          } as Conversation;
+
+          setConversations((prev) => [transformedConv, ...prev]);
+          setActiveConversationId(newConv.id);
+          convId = newConv.id;
+          localConversation = transformedConv;
         }
-        
-        setConversations(prev => [transformedConv, ...prev])
-        setActiveConversationId(newConv.id)
-        conversationId = newConv.id
-        currentConversation = transformedConv
+
+        const tempId = `temp-${Date.now()}`;
+        const userMessage: Message = {
+          id: tempId,
+          uiKey: tempId,
+          content,
+          role: "user",
+          attachments: file ? [file.name] : [],
+          createdAt: new Date().toISOString(),
+        };
+
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === convId
+              ? {
+                  ...conv,
+                  messages: [...(conv.messages || []), userMessage],
+                  lastMessage: content,
+                }
+              : conv
+          )
+        );
+
+        const mode = selectedMode === "chat" ? "NORMAL" : "AGENTIC";
+        const response = await apiService.sendMessage(convId!, content, mode, file);
+
+        const fullConversation = await apiService.getConversationMessages(convId!);
+        const transformedMessages = fullConversation.messages?.map(transformMessage) || [];
+        const lastAssistantMessage = [...transformedMessages].reverse().find((m) => m.role === "assistant");
+
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === convId
+              ? {
+                  ...fullConversation,
+                  messages: mergeMessages(conv.messages || [], transformedMessages),
+                  lastMessage: lastAssistantMessage?.content || "",
+                  sessionId: (response as any)?.conversation?.sessionId ?? conv.sessionId,
+                  documentId: (response as any)?.conversation?.documentId ?? conv.documentId,
+                }
+              : conv
+          )
+        );
+
+        if (lastAssistantMessage) {
+          setMessageId(lastAssistantMessage.id);
+          startStreaming(
+            lastAssistantMessage.content,
+            (nextChunk) => {
+              setConversations((prev) =>
+                prev.map((conv) =>
+                  conv.id === convId
+                    ? {
+                        ...conv,
+                        messages:
+                          conv.messages?.map((msg) =>
+                            msg.id === lastAssistantMessage.id ? { ...msg, content: nextChunk } : msg
+                          ) ?? [],
+                        lastMessage: nextChunk,
+                      }
+                    : conv
+                )
+              );
+            },
+            () => setMessageId(null)
+          );
+        }
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        const status = (error as any)?.status;
+        const body = (error as any)?.body;
+        toast({
+          title: "Failed to send message",
+          description:
+            (body?.message || (error instanceof Error ? error.message : "Please try again")) +
+            (status ? ` (status ${status})` : ""),
+          variant: "destructive",
+        });
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "I apologize, but I'm having trouble processing your request right now. Please try again.",
+          role: "assistant",
+          createdAt: new Date().toISOString(),
+        };
+
+        if (activeConversationId) {
+          setConversations((prev) =>
+            prev.map((conv) =>
+              conv.id === activeConversationId
+                ? { ...conv, messages: [...(conv.messages || []), errorMessage] }
+                : conv
+            )
+          );
+        }
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [activeConversation, activeConversationId, selectedMode, startStreaming, toast]
+  );
 
-      // Add user message to UI immediately
-      const userMessage: Message = {
-        id: `temp-${Date.now()}`,
-        content,
-        role: "user",
-        attachments: file ? [file.name] : [],
-        createdAt: new Date().toISOString()
+  const handleNewConversation = useCallback(() => {
+    setActiveConversationId(null);
+  }, []);
+
+  const handleSelectConversation = useCallback(
+    async (id: string) => {
+      setIsLoadingActiveConversation(true);
+      setActiveConversationId(id);
+      try {
+        const fullConversation = await apiService.getConversationMessages(id);
+        const transformedMessages = fullConversation.messages?.map(transformMessage) || [];
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === id
+              ? {
+                  ...fullConversation,
+                  messages: transformedMessages,
+                  lastMessage: transformedMessages[transformedMessages.length - 1]?.content || "",
+                }
+              : c
+          )
+        );
+        setIsNewConversationSelected(true);
+        window.setTimeout(() => setIsNewConversationSelected(false), 100);
+      } catch (error) {
+        handleErrorToast("Failed to load conversation", error);
+      } finally {
+        setIsLoadingActiveConversation(false);
       }
+    },
+    [handleErrorToast]
+  );
 
-      setConversations(prev => prev.map(conv => 
-        conv.id === conversationId
-          ? { 
-              ...conv, 
-              messages: [...(conv.messages || []), userMessage],
-              lastMessage: content
-            }
-          : conv
-      ))
-
-      setIsLoading(true)
-
-      // Send message to backend
-      const mode = selectedMode === 'chat' ? 'NORMAL' : 'AGENTIC'
-      // Debug: log sendMessage parameters to diagnose HTTP 422 validation errors
-      console.log('Calling apiService.sendMessage with:', { conversationId, content, mode, hasFile: !!file });
-      const response = await apiService.sendMessage(
-        conversationId!,
-        content,
-        mode,
-        file
-      )
-
-      // After sending message, refetch the conversation to get the complete message history
-      // including the assistant's response from the backend
-      const updatedConversation = await apiService.getConversationMessages(conversationId!)
-      
-      setIsLoading(false)
-
-      // Transform messages to frontend format
-      const transformedMessages = updatedConversation.messages?.map(transformMessage) || []
-      
-      // Find the last assistant message (the response we just received)
-      const lastAssistantMessage = transformedMessages.filter(m => m.role === 'assistant').pop()
-      
-      // Update conversation with all messages from backend
-      setConversations(prev => prev.map(conv => 
-        conv.id === conversationId!
-          ? { 
-              ...updatedConversation,
-              messages: transformedMessages,
-              lastMessage: lastAssistantMessage?.content || "",
-              sessionId: response.conversation.sessionId,
-              documentId: response.conversation.documentId
-            }
-          : conv
-      ))
-
-      // Start streaming effect for the assistant's response
-      if (lastAssistantMessage) {
-        setStreamingMessageId(lastAssistantMessage.id)
-        streamText(lastAssistantMessage.content, lastAssistantMessage.id, conversationId!)
-      }
-
-    } catch (error) {
-      console.error('Failed to send message:', error)
-      // If the ApiService threw the richer ApiError, expose status/body for debugging
-      if ((error as any)?.name === 'ApiError') {
-        console.error('API error details:', {
-          status: (error as any).status,
-          body: (error as any).body,
-        })
-      }
-      setIsLoading(false)
-      
-      // Show more helpful message when available
-      const status = (error as any)?.status
-      const body = (error as any)?.body
-      toast({
-        title: "Failed to send message",
-        description: body?.message || (error instanceof Error ? error.message : "Please try again") + (status ? ` (status ${status})` : ''),
-        variant: "destructive",
-      })
-
-      // Show fallback error message
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "I apologize, but I'm having trouble processing your request right now. Please try again.",
-        role: "assistant",
-        createdAt: new Date().toISOString()
-      }
-
-      if (activeConversationId) {
-        setConversations(prev => prev.map(conv => 
-          conv.id === activeConversationId
-            ? { 
-                ...conv, 
-                messages: [...(conv.messages || []), errorMessage]
-              }
-            : conv
-        ))
-      }
-    }
-  }
-
-  const handleNewConversation = () => {
-    setActiveConversationId(null)
-  }
-
-  const handleSelectConversation = async (id: string) => {
-    try {
-      // Always fetch full conversation with messages to ensure we have all user and assistant messages
-      const fullConversation = await apiService.getConversationMessages(id)
-      
-      console.log('Full conversation loaded:', fullConversation)
-      console.log('Messages received:', fullConversation.messages)
-      
-      // Transform messages to frontend format
-      const transformedMessages = fullConversation.messages?.map(transformMessage) || []
-      console.log('Transformed messages:', transformedMessages)
-      
-      setConversations(prev => prev.map(c => 
-        c.id === id 
-          ? {
-              ...fullConversation,
-              messages: transformedMessages,
-              lastMessage: transformedMessages[transformedMessages.length - 1]?.content || ''
-            }
-          : c
-      ))
-      
-      setActiveConversationId(id)
-      setIsNewConversationSelected(true)
-      setTimeout(() => setIsNewConversationSelected(false), 100)
-    } catch (error) {
-      console.error('Failed to load conversation:', error)
-      toast({
-        title: "Failed to load conversation",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleShareConversation = () => {
-    if (!activeConversation) return
-
-    // Call backend to enable sharing and get secure link
+  const handleShareConversation = useCallback(() => {
+    if (!activeConversation) return;
     (async () => {
       try {
-        const result = await apiService.shareConversation(activeConversation.id, true)
-
+        const result = await apiService.shareConversation(activeConversation.id, true);
         if (result.link) {
           try {
-            await navigator.clipboard.writeText(result.link)
+            await navigator.clipboard.writeText(result.link);
             toast({
               title: "Share link copied",
               description: "A secure shareable link has been created and copied to your clipboard.",
-            })
-          } catch (err) {
-            // Copy failed, but sharing succeeded — show link in toast
-            console.error('Failed to copy share link to clipboard:', err)
+            });
+          } catch {
             toast({
               title: "Share link created",
               description: result.link,
-            })
+            });
           }
         } else if (result.message) {
           toast({
             title: "Share status",
             description: result.message,
-          })
+          });
         } else {
           toast({
             title: "Sharing updated",
             description: "Sharing status updated successfully.",
-          })
+          });
         }
       } catch (error) {
-        console.error('Failed to update sharing status:', error)
-        toast({
-          title: "Failed to share conversation",
-          description: error instanceof Error ? error.message : "Please try again",
-          variant: "destructive",
-        })
+        handleErrorToast("Failed to share conversation", error);
       }
-    })()
-  }
+    })();
+  }, [activeConversation, handleErrorToast, toast]);
 
-  const handleDeleteConversation = () => {
-    if (!activeConversation) return
-    setIsDeleteDialogOpen(true)
-  }
+  const handleDeleteConversation = useCallback(() => {
+    if (!activeConversation) return;
+    setIsDeleteDialogOpen(true);
+  }, [activeConversation]);
 
-  const confirmDeleteConversation = async () => {
-    if (!activeConversation) return
-    
+  const confirmDeleteConversation = useCallback(async () => {
+    if (!activeConversation) return;
     try {
-      await apiService.deleteConversation(activeConversation.id)
-      
-      setConversations(prev => prev.filter(conv => conv.id !== activeConversation.id))
-      
-      if (activeConversationId === activeConversation.id) {
-        setActiveConversationId(null)
-      }
-
+      await apiService.deleteConversation(activeConversation.id);
+      setConversations((prev) => prev.filter((conv) => conv.id !== activeConversation.id));
+      if (activeConversationId === activeConversation.id) setActiveConversationId(null);
       toast({
         title: "Conversation deleted",
         description: "The conversation has been deleted successfully.",
-      })
+      });
     } catch (error) {
-      console.error('Failed to delete conversation:', error)
-      toast({
-        title: "Failed to delete",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      })
+      handleErrorToast("Failed to delete", error);
+    } finally {
+      setIsDeleteDialogOpen(false);
     }
-  }
+  }, [activeConversation, activeConversationId, handleErrorToast, toast]);
 
-  const handleTempChatClick = () => {
-    // Handle temporary chat functionality
-    console.log('Temporary chat clicked')
-    handleNewConversation()
-  }
+  const handleTempChatClick = useCallback(() => {
+    handleNewConversation();
+  }, [handleNewConversation]);
+
+  const sidebarConversations = useMemo(
+    () =>
+      conversations.map((c) => ({
+        id: c.id,
+        title: c.title,
+        messages: c.messages || [],
+        lastMessage: c.lastMessage || "",
+      })),
+    [conversations]
+  );
 
   if (isLoadingConversations) {
     return (
       <div className="flex h-screen relative overflow-hidden">
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: "rgb(33, 33, 33)",
-            backgroundSize: "30px 30px",
-            backgroundPosition: "0 0",
-          }}
-        />
+        <BackgroundLayer />
         <ChatSidebar
           user={user}
           conversations={[]}
@@ -400,37 +399,32 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="flex h-screen relative overflow-hidden chat-interface-container" style={{ maxWidth: '100vw' }}>
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          background: "rgb(33, 33, 33)",
-          backgroundSize: "30px 30px",
-          backgroundPosition: "0 0",
-        }}
-      />
+    <div
+      className="flex h-screen relative overflow-hidden chat-interface-container"
+      style={{ maxWidth: "100vw" }}
+    >
+      <BackgroundLayer />
+
       <ChatSidebar
         user={user}
-        conversations={conversations.map(c => ({
-          id: c.id,
-          title: c.title,
-          messages: c.messages || [],
-          lastMessage: c.lastMessage || ""
-        }))}
+        conversations={sidebarConversations}
         activeConversationId={activeConversationId || undefined}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
         onLogout={onLogout}
       />
-      
-      <div className="flex-1 flex flex-col relative z-10 min-w-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ maxWidth: 'calc(100vw - 65px)' }}>
+
+      <div
+        className="flex-1 flex flex-col relative z-10 min-w-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+        style={{ maxWidth: "calc(100vw - 65px)" }}
+      >
         <div className="sticky top-0 z-20 bg-[rgb(33,33,33)]">
           <ChatModeSelector
-            variant={activeConversation ? 'chat-selected' : 'default'}
+            variant={activeConversation ? "chat-selected" : "default"}
             onModeChange={handleModeChange}
             onTempChatClick={handleTempChatClick}
             onShareClick={handleShareConversation}
@@ -438,22 +432,32 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
           />
         </div>
 
-        <ChatMessagesArea
-          ref={messagesAreaRef}
-          user={user}
-          activeConversation={activeConversation ? {
-            ...activeConversation,
-            messages: activeConversation.messages || [],
-            lastMessage: activeConversation.lastMessage || ""
-          } : undefined}
-          isLoading={isLoading}
-          selectedMode={selectedMode}
-          streamingMessageId={streamingMessageId}
-          streamingContent={streamingContent}
-          onSendMessage={handleSendMessage}
-          isNewConversationSelected={isNewConversationSelected}
-          onRegenerate={handleSendMessage}
-        />
+        {isLoadingActiveConversation ? (
+          <div className="flex-1 overflow-y-auto">
+            <ConversationSkeleton />
+          </div>
+        ) : (
+          <ChatMessagesArea
+            ref={messagesAreaRef}
+            user={user}
+            activeConversation={
+              activeConversation
+                ? {
+                    ...activeConversation,
+                    messages: activeConversation.messages || [],
+                    lastMessage: activeConversation.lastMessage || "",
+                  }
+                : undefined
+            }
+            isLoading={isLoading}
+            selectedMode={selectedMode}
+            streamingMessageId={messageId}
+            streamingContent={streamingContent}
+            onSendMessage={handleSendMessage}
+            isNewConversationSelected={isNewConversationSelected}
+            onRegenerate={handleSendMessage}
+          />
+        )}
       </div>
 
       <DeleteConversationDialog
@@ -463,5 +467,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
         conversationTitle={activeConversation?.title}
       />
     </div>
-  )
+  );
 }
+
+export default ChatInterface;

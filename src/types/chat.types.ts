@@ -1,9 +1,10 @@
-export type MessageRole = "user" | "assistant" | "system";
-export type ChatMode = "chat" | "agentic";
+export type MessageRole = "user" | "assistant";
+export type ChatMode = "normal" | "agentic";
 export type BackendMode = "NORMAL" | "AGENTIC";
 
 export interface Message {
   id: string;
+  uiKey?: string;
   content: string;
   role: MessageRole;
   attachments?: string[];
@@ -46,11 +47,10 @@ export interface ConversationListItem {
   lastMessage: string;
 }
 
-// Utility function to convert between frontend and backend modes
 export function toBackendMode(mode: ChatMode): BackendMode {
-  return mode === 'chat' ? 'NORMAL' : 'AGENTIC';
+  return mode === 'normal' ? 'NORMAL' : 'AGENTIC';
 }
 
 export function toFrontendMode(mode: BackendMode): ChatMode {
-  return mode === 'NORMAL' ? 'chat' : 'agentic';
+  return mode === 'NORMAL' ? 'normal' : 'agentic';
 }

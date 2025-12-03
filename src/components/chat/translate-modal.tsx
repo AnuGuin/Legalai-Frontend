@@ -77,7 +77,6 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
 
   const handleClose = () => {
     onOpenChange(false);
-    // Reset form when closing
     setSourceLang("");
     setTargetLang("");
   };

@@ -19,29 +19,20 @@ export default function AIPage() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    const authToken = localStorage.getItem("authToken");
-    
-    console.log("AI Page: Checking authentication...", { 
-      hasUser: !!storedUser, 
-      hasToken: !!authToken 
-    });
     
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        console.log("AI Page: User found and parsed successfully", parsedUser);
         setUser(parsedUser);
       
         setTimeout(() => {
           setIsCheckingAuth(false);
         }, 300);
       } catch (error) {
-        console.error("Failed to parse user data:", error);
         navigate("/auth");
         return;
       }
     } else {
-      console.log("AI Page: No user found in localStorage, redirecting to auth");
       navigate("/auth");
       return;
     }
@@ -54,7 +45,6 @@ export default function AIPage() {
     });
   };
 
-  // Show loader while checking auth or navigating
   if (isCheckingAuth || isNavigating || !user) {
     return (
       <AnimatePresence mode="wait">

@@ -68,7 +68,7 @@ const tools: Tool[] = [
     }
 ];
 
-// File validation constants
+
 const ALLOWED_FILE_TYPES = [
     'application/pdf',
     'application/msword',
@@ -80,7 +80,7 @@ const ALLOWED_FILE_TYPES = [
     'image/gif'
 ];
 
-const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; 
 
 export default function AI_Input({ onSendMessage, mode = 'chat', disabled = false, showModeIndicator = true }: AI_InputProps) {
     const [value, setValue] = useState("");
@@ -108,20 +108,15 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
 
-    // Debounced language detection for agentic mode
     useEffect(() => {
-        // Only detect language in agentic mode and when there's text
         if (mode !== 'agentic' || !value.trim() || value.trim().length < 3) {
             setDetectedLanguage(null);
             return;
         }
-
-        // Clear existing timer
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
 
-        // Set new timer for debounced detection
         debounceTimerRef.current = setTimeout(async () => {
             try {
                 setIsDetecting(true);
@@ -132,13 +127,10 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                 }
             } catch (error) {
                 console.error('Language detection failed:', error);
-                // Silently fail - don't show error to user for auto-detection
             } finally {
                 setIsDetecting(false);
             }
         }, 800); 
-
-        // Cleanup on unmount or value change
         return () => {
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
@@ -149,8 +141,6 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-
-        // Validate mode
         if (mode !== 'agentic') {
             toast({
                 title: "File upload not available",
@@ -160,18 +150,14 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
             return;
         }
 
-        // Process each file
         const validFiles: UploadedFile[] = [];
         const errors: string[] = [];
 
         Array.from(files).forEach(file => {
-            // Validate file type
             if (!ALLOWED_FILE_TYPES.includes(file.type)) {
                 errors.push(`${file.name}: Invalid file type. Only PDF, DOC, DOCX, TXT, and images are allowed.`);
                 return;
             }
-
-            // Validate file size
                 if (file.size > MAX_FILE_SIZE) {
                     errors.push(`${file.name}: File too large. Maximum size is ${Math.round(MAX_FILE_SIZE / (1024 * 1024))}MB.`);
                 return;
@@ -185,8 +171,6 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                 file: file
             });
         });
-
-        // Show errors if any
         if (errors.length > 0) {
             toast({
                 title: "File validation failed",
@@ -194,22 +178,7 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                 variant: "destructive",
             });
         }
-
-        // Add valid files (only allow one file at a time for backend compatibility)
-        if (validFiles.length > 0) {
-            // Only keep the first file since backend expects single file
-            setUploadedFiles([validFiles[0]]);
-            
-            if (validFiles.length > 1) {
-                toast({
-                    title: "Multiple files selected",
-                    description: "Only one file can be uploaded at a time. Using the first file.",
-                    variant: "default",
-                });
-            }
-        }
         
-        // Reset file input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -237,10 +206,8 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
     };
 
     const handleSubmit = async () => {
-        // Validate input
         if (!value.trim() && uploadedFiles.length === 0) return;
         
-        // Validate file upload mode
         if (uploadedFiles.length > 0 && mode !== 'agentic') {
             toast({
                 title: "File upload error",
@@ -251,42 +218,31 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
         }
 
         if (disabled) return;
-
-        // Prepare message content
         let messageContent = value.trim();
         
-        // If translation languages are selected, format the message with translation request
         if (translateLanguages) {
             messageContent = `Please translate the following text from ${translateLanguages.sourceName} to ${translateLanguages.targetName}:\n\n${messageContent}`;
         }
-        // Debug: log translation selection and final message content to help diagnose 422 errors
         console.log('AI Input - sending message', {
             mode,
             translateLanguages,
             messagePreview: messageContent && messageContent.length > 1000 ? messageContent.slice(0, 1000) + '... (truncated)' : messageContent,
             hasFile: uploadedFiles.length > 0
         });
-
-        // Clear only the input text immediately for better UX
         setValue("");
         adjustHeight(true);
         
-        // Clear uploaded files (for agentic mode)
         if (mode === 'agentic') {
             setUploadedFiles([]);
         }
         
-        // Clear detected language on send
         setDetectedLanguage(null);
         
-        // Then send the message
         if (onSendMessage) {
-            // Send message with optional file (only first file)
             const fileToSend = uploadedFiles.length > 0 ? uploadedFiles[0].file : undefined;
             await onSendMessage(messageContent, fileToSend);
         }
         
-        // Note: Keep selectedTool and translateLanguages intact so user can send multiple messages with same settings
     };
 
     const handleFocus = () => {
@@ -646,24 +602,20 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                                                     }}
                                                     className="relative group"
                                                 >
-                                                    {/* Tooltip on hover */}
                                                     <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999]">
                                                         <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shadow-lg">
                                                             {file.name}
                                                             <div className="text-[10px] opacity-70 mt-0.5">
                                                                 {formatFileSize(file.size)}
                                                             </div>
-                                                            {/* Tooltip arrow */}
                                                             <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45"></div>
                                                         </div>
                                                     </div>
                                                     
-                                                    {/* File square tile */}
                                                     <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-sky-500/10 to-sky-500/5 dark:from-sky-500/20 dark:to-sky-500/10 hover:from-sky-500/20 hover:to-sky-500/10 dark:hover:from-sky-500/30 dark:hover:to-sky-500/20 border border-sky-500/20 dark:border-sky-500/30 flex items-center justify-center text-sky-500 dark:text-sky-400 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 backdrop-blur-sm">
                                                         {getFileIcon(file.type)}
                                                     </div>
                                                     
-                                                    {/* Remove button (shows on hover) */}
                                                     <button
                                                         onClick={() => removeFile(file.id)}
                                                         disabled={disabled}
@@ -684,7 +636,6 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                     </AnimatePresence>
                 </div>
 
-                {/* Mode indicator help text */}
                 {showModeIndicator && (
                     <div className="mt-2 text-center">
                         <p className="text-xs text-black/50 dark:text-white/50">
@@ -697,7 +648,6 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                 )}
             </div>
 
-            {/* Translate Modal */}
             <TranslateModal
                 open={isTranslateModalOpen}
                 onOpenChange={setIsTranslateModalOpen}
