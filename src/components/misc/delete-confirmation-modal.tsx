@@ -83,7 +83,7 @@ export default function DeleteConfirmationModal({
               placeholder={confirmPlaceholder || `Type ${confirmText} to confirm`}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="bg-zinc-800 border-zinc-600 text-zinc-200 focus:ring-2 focus:ring-white/50"
+              className="bg-zinc-800 border-zinc-600 text-zinc-200 focus:ring-2 focus:ring-white/50 rounded-xl"
               disabled={loading}
             />
           </div>

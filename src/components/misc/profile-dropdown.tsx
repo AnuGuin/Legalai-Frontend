@@ -78,23 +78,23 @@ export default function ProfileDropdown({
         {
             label: "Settings",
             href: "#",
-            icon: <Settings className="w-4 h-4" />,
+            icon: <Settings className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />,
         },
         {
             label: "Themes",
             href: "#",
-            icon: <Palette className="w-4 h-4" />,
+            icon: <Palette className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />,
         },
         {
             label: "Subscription",
             value: data.subscription,
             href: "#",
-            icon: <CreditCard className="w-4 h-4" />,
+            icon: <CreditCard className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />,
         },
         {
             label: "Terms & Policies",
             href: "#",
-            icon: <FileText className="w-4 h-4" />,
+            icon: <FileText className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />,
         },
     ];
 
@@ -138,7 +138,7 @@ export default function ProfileDropdown({
                         align={align}
                         sideOffset={sideOffset}
                         alignOffset={alignOffset}
-                        className="z-50 w-64 p-2 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]
+                        className="z-50 w-56 p-2 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]
                     data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
                         style={{ backgroundColor: 'rgb(53, 53, 53)' }}
                     >

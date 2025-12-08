@@ -378,6 +378,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
         onLogout={onLogout}
+        isLoadingConversations={isLoadingConversations}
       />
 
       <div

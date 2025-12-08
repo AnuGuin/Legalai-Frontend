@@ -10,6 +10,7 @@ import DeleteConfirmationModal from "./delete-confirmation-modal";
 import TocDialog from "../docs/terms/toc-dialog";
 import PrivacyDialog from "../docs/terms/privacy-dialog";
 import { Meter } from "../ui/meter";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CAPABILITIES_DATA = {
   name: "Nyay Mitra",
@@ -133,70 +134,118 @@ export default function SettingsModal({ open, onOpenChange, onSignOut }: Setting
             <div className="flex-1 overflow-y-auto p-6 md:p-8">
                 {activeTab === "profile" && (
                     <div className="space-y-8 max-w-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-            
-                        <div className="flex items-center gap-6">
-                             <div className="relative group">
-                                <Avatar className="w-20 h-20 border-2 border-zinc-700">
-                                    <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xl">
-                                        {userProfile?.name?.charAt(0) || <User />}
-                                    </AvatarFallback>
-                                </Avatar>
-                            
-                                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                    <span className="text-xs text-white">Change</span>
+                        {loading ? (
+                            <>
+                                <div className="flex items-center gap-6">
+                                    <Skeleton className="w-20 h-20 rounded-full bg-neutral-700" />
+                                    <div>
+                                        <Skeleton className="h-6 w-32 mb-2 bg-neutral-700" />
+                                        <Skeleton className="h-4 w-48 bg-neutral-700" />
+                                    </div>
                                 </div>
-                             </div>
-                             <div>
-                                <h3 className="text-xl font-medium text-zinc-100">{userProfile?.name || "User"}</h3>
-                                <p className="text-zinc-500 text-sm">{userProfile?.email}</p>
-                                <p className="text-zinc-600 text-xs mt-1 font-mono">ID: {userProfile?.id}</p>
-                             </div>
-                        </div>
 
-                        <div className="space-y-4">
-                            <div className="grid gap-2">
-                                <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Display Name</label>
-                                <input 
-                                    type="text" 
-                                    defaultValue={userProfile?.name || ""}
-                                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-                                />
-                            </div>
-                             <div className="grid gap-2">
-                                <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Email Address</label>
-                                <input 
-                                    type="text" 
-                                    value={userProfile?.email || ""}
-                                    disabled
-                                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-500 cursor-not-allowed"
-                                />
-                            </div>
-                        </div>
+                                <div className="space-y-4">
+                                    <div className="grid gap-2">
+                                        <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Display Name</label>
+                                        <Skeleton className="w-full h-10 rounded-lg bg-neutral-700" />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Email Address</label>
+                                        <Skeleton className="w-full h-10 rounded-lg bg-neutral-700" />
+                                    </div>
+                                </div>
 
-                        <div className="pt-4 border-t border-zinc-800 space-y-3">
-                            <button 
-                                onClick={onSignOut}
-                                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-700 transition-all group"
-                            >
-                                <span className="text-sm font-medium">Log out of all devices</span>
-                                <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
-                            </button>
-                            <DeleteConfirmationModal
-                              trigger={
-                                <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-red-900/20 text-red-400 hover:bg-red-950/10 hover:border-red-900/40 transition-all group">
-                                    <span className="text-sm font-medium">Delete account</span>
-                                    <Trash2 className="w-4 h-4 opacity-70 group-hover:opacity-100" />
-                                </button>
-                              }
-                              title="Delete Account"
-                              description="This action cannot be undone. Your account and all associated data will be permanently deleted."
-                              confirmText="DELETE MY ACCOUNT"
-                              onConfirm={async () => {
-                                await apiService.deleteAccount();
-                                onSignOut?.();
-                              }}
-                            />
-                        </div>
+                                <div className="pt-4 border-t border-zinc-800 space-y-3">
+                                    <button 
+                                        onClick={onSignOut}
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-700 transition-all group"
+                                    >
+                                        <span className="text-sm font-medium">Log out of all devices</span>
+                                        <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
+                                    </button>
+                                    <DeleteConfirmationModal
+                                      trigger={
+                                        <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-red-900/20 text-red-400 hover:bg-red-950/10 hover:border-red-900/40 transition-all group">
+                                            <span className="text-sm font-medium">Delete account</span>
+                                            <Trash2 className="w-4 h-4 opacity-70 group-hover:opacity-100" />
+                                        </button>
+                                      }
+                                      title="Delete Account"
+                                      description="This action cannot be undone. Your account and all associated data will be permanently deleted."
+                                      confirmText="DELETE MY ACCOUNT"
+                                      onConfirm={async () => {
+                                        await apiService.deleteAccount();
+                                        onSignOut?.();
+                                      }}
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-6">
+                                     <div className="relative group">
+                                        <Avatar className="w-20 h-20 border-2 border-zinc-700">
+                                            <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xl">
+                                                {userProfile?.name?.charAt(0) || <User />}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    
+                                        <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                            <span className="text-xs text-white">Change</span>
+                                        </div>
+                                     </div>
+                                     <div>
+                                        <h3 className="text-xl font-medium text-zinc-100">{userProfile?.name || "User"}</h3>
+                                        <p className="text-zinc-500 text-sm">{userProfile?.email}</p>
+                                     </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid gap-2">
+                                        <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Display Name</label>
+                                        <input 
+                                            type="text" 
+                                            defaultValue={userProfile?.name || ""}
+                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                                        />
+                                    </div>
+                                     <div className="grid gap-2">
+                                        <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Email Address</label>
+                                        <input 
+                                            type="text" 
+                                            value={userProfile?.email || ""}
+                                            disabled
+                                            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-zinc-500 cursor-not-allowed"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-zinc-800 space-y-3">
+                                    <button 
+                                        onClick={onSignOut}
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-700 transition-all group"
+                                    >
+                                        <span className="text-sm font-medium">Log out of all devices</span>
+                                        <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
+                                    </button>
+                                    <DeleteConfirmationModal
+                                      trigger={
+                                        <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-red-900/20 text-red-400 hover:bg-red-950/10 hover:border-red-900/40 transition-all group">
+                                            <span className="text-sm font-medium">Delete account</span>
+                                            <Trash2 className="w-4 h-4 opacity-70 group-hover:opacity-100" />
+                                        </button>
+                                      }
+                                      title="Delete Account"
+                                      description="This action cannot be undone. Your account and all associated data will be permanently deleted."
+                                      confirmText="DELETE MY ACCOUNT"
+                                      onConfirm={async () => {
+                                        await apiService.deleteAccount();
+                                        onSignOut?.();
+                                      }}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
 

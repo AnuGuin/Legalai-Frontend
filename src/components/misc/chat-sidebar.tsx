@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import ProfileDropdown from "@/components/misc/profile-dropdown";
+import { RecentChatSkeleton } from "../chat/recent-chat-sekeleton";
 
 interface ChatSidebarProps {
   user: { name: string; email: string; avatar?: string };
@@ -21,6 +22,7 @@ interface ChatSidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onLogout: () => void;
+  isLoadingConversations?: boolean;
 }
 
 export default function ChatSidebar({
@@ -30,6 +32,7 @@ export default function ChatSidebar({
   onSelectConversation,
   onNewConversation,
   onLogout,
+  isLoadingConversations,
 }: ChatSidebarProps) {
   const [open, setOpen] = useState(false);
 
@@ -92,7 +95,9 @@ export default function ChatSidebar({
                   </h3>
                 </div>
                 <div className="flex-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar min-h-0">
-                  {conversations && conversations.length > 0 ? (
+                  {isLoadingConversations ? (
+                    <RecentChatSkeleton />
+                  ) : conversations && conversations.length > 0 ? (
                     conversations.map((conversation) => (
                     <button
                       key={conversation.id}
