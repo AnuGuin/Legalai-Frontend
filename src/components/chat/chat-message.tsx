@@ -191,11 +191,7 @@ function LoadingMessage() {
 
 
 
-function WelcomeScreen({
-  user,
-  onSendMessage,
-  selectedMode
-}: {
+function WelcomeScreen({ user, onSendMessage, selectedMode }: {
   user: { name: string; email: string; avatar?: string };
   onSendMessage: (content: string, file?: File) => void;
   selectedMode: "chat" | "agentic";
@@ -203,7 +199,7 @@ function WelcomeScreen({
   return (
    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center justify-center p-6" style={{ top: 'calc(50% - 30px)' }}>
       <div className="text-center max-w-2xl w-full">
-        <div className="mb-4">
+        <div className="mb-2">
           <h1 className="text-4xl font-semibold mb-4 text-blue-400">
             Hello {user.name.split(' ')[0]}
           </h1>
@@ -307,11 +303,8 @@ export const ChatMessagesArea = forwardRef <ChatMessagesAreaRef, ChatMessagesAre
       if (isNewConversationSelected) {
         scrollToTop();
       } else {
-        if (isAtBottomRef.current) {
-          scrollToBottom();
-        } else {
-           forceScrollToBottom();
-        }
+        if (isAtBottomRef.current) 
++      forceScrollToBottom();
       }
     }, [combinedMessages.length, isNewConversationSelected]);
 

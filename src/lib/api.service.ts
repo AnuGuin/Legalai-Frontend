@@ -6,6 +6,17 @@ interface ApiResponse<T> {
   message?: string;
 }
 
+interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  provider: string;
+  preferences?: any;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
 interface Message {
   id: string;
   content: string;
@@ -52,6 +63,11 @@ interface Translation {
   createdAt: string;
 }
 
+interface UserStats {
+  documentAnalysisCount: number;
+  translationCount: number;
+}
+
 class ApiService {
   private ApiError = class ApiError extends Error {
     status: number
@@ -63,10 +79,26 @@ class ApiService {
       this.body = body
     }
   }
+
   private getAuthToken(): string | null {
     return localStorage.getItem('authToken');
   }
 
+  private getLocalStats(): UserStats {
+    try {
+      const stats = localStorage.getItem('userStats');
+      return stats ? JSON.parse(stats) : { documentAnalysisCount: 0, translationCount: 0 };
+    } catch {
+      return { documentAnalysisCount: 0, translationCount: 0 };
+    }
+  }
+
+  private updateLocalStats(type: 'doc' | 'trans') {
+    const stats = this.getLocalStats();
+    if (type === 'doc') stats.documentAnalysisCount++;
+    if (type === 'trans') stats.translationCount++;
+    localStorage.setItem('userStats', JSON.stringify(stats));
+  }
   
   private async request<T>(
     endpoint: string,
@@ -121,9 +153,6 @@ class ApiService {
 
         const errorMessageFromBody = (errorData && (errorData.message || errorData.error)) || responseText || `HTTP error! status: ${response.status}`;
         console.error('API Error: url=', url, ' status=', response.status, ' statusText=', response.statusText)
-        console.error('API Error - request body (preview):', requestBodyForLog)
-        console.error('API Error - raw responseText (preview):', responseText && responseText.slice ? responseText.slice(0, 2000) : responseText)
-        console.error('API Error - parsed JSON body:', errorData)
         throw new this.ApiError(response.status, `HTTP ${response.status}: ${errorMessageFromBody}`, errorData ?? responseText);
       }
 
@@ -131,6 +160,54 @@ class ApiService {
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
+    }
+  }
+
+  // ==================== User Profile APIs ====================
+
+  async getUserProfile(): Promise<UserProfile> {
+    const response = await this.request<ApiResponse<UserProfile>>('/api/user/profile');
+    if (!response.success || !response.data) {
+      throw new Error('Failed to fetch user profile');
+    }
+    return response.data;
+  }
+
+  async updateUserProfile(data: { name?: string; avatar?: string; preferences?: any }): Promise<UserProfile> {
+    const response = await this.request<ApiResponse<UserProfile>>(
+      '/api/user/profile',
+      {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }
+    );
+    if (!response.success || !response.data) {
+      throw new Error('Failed to update profile');
+    }
+    return response.data;
+  }
+
+  async getUserStats(): Promise<UserStats> {
+    try {
+      const response = await this.request<ApiResponse<any>>('/api/user/stats');
+      const localStats = this.getLocalStats();
+      return {
+        documentAnalysisCount: (response.data?.documentAnalysisCount || 0) + localStats.documentAnalysisCount,
+        translationCount: (response.data?.translationCount || 0) + localStats.translationCount
+      };
+    } catch (e) {
+      console.warn('Failed to fetch server stats, using local stats', e);
+      return this.getLocalStats();
+    }
+  }
+
+  async deleteAccount(): Promise<void> {
+    const response = await this.request<ApiResponse<void>>(
+      '/api/user/profile', 
+      { method: 'DELETE' }
+    );
+    if (!response.success) {
+      throw new Error('Failed to delete account');
     }
   }
 
@@ -172,12 +249,6 @@ class ApiService {
     if (!response.success || !response.data) {
       throw new Error('Failed to fetch conversations');
     }
-
-    console.log('API getConversations response:', response.data);
-    response.data.forEach((conv, index) => {
-      console.log(`Conversation ${index} (${conv.id}) has ${conv.messages?.length || 0} messages:`, conv.messages);
-    });
-
     return response.data;
   }
 
@@ -189,10 +260,6 @@ class ApiService {
     if (!response.success || !response.data) {
       throw new Error('Failed to fetch conversation messages');
     }
-
-    console.log('API getConversationMessages response:', response.data);
-    console.log('Messages from backend:', response.data.messages);
-
     return response.data;
   }
 
@@ -239,6 +306,11 @@ class ApiService {
 
     if (!response.success || !response.data) {
       throw new Error('Failed to send message');
+    }
+
+    // Track usage locally
+    if (file || mode === 'AGENTIC') {
+       this.updateLocalStats('doc');
     }
 
     return response.data;
@@ -314,30 +386,28 @@ class ApiService {
         body: JSON.stringify(params),
       }
     );
-
+    
+    if (response.success) {
+        this.updateLocalStats('trans');
+    }
+    
     return response;
   }
 
   async detectLanguage(text: string): Promise<ApiResponse<{ language: string; display_name: string }>> {
-    const response = await this.request<ApiResponse<{ language: string; display_name: string }>>(
+    return await this.request<ApiResponse<{ language: string; display_name: string }>>(
       '/api/translation/detect-language',
       {
         method: 'POST',
         body: JSON.stringify({ text }),
       }
     );
-
-    return response;
   }
 
   async getTranslationHistory(): Promise<ApiResponse<Translation[]>> {
-    const response = await this.request<ApiResponse<Translation[]>>(
-      '/api/translation/history'
-    );
-
-    return response;
+    return await this.request<ApiResponse<Translation[]>>('/api/translation/history');
   }
 }
 
 export const apiService = new ApiService();
-export type { Conversation, Message, SendMessageResponse, Translation };
+export type { UserProfile, Conversation, Message, SendMessageResponse, Translation, UserStats };

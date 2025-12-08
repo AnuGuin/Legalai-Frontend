@@ -22,7 +22,6 @@ export function DeleteConversationDialog({
   open,
   onOpenChange,
   onConfirm,
-  conversationTitle,
 }: DeleteConversationDialogProps) {
   const handleConfirm = () => {
     onConfirm();

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,23 +12,33 @@ import PrivacyDialog from '@/components/docs/terms/privacy-dialog';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Ensure API_BASE_URL doesn't include /api suffix as endpoints already include it
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:10000").replace(/\/api$/, '');
 
 interface LoginFormProps {
   onAuthenticated?: (user: { name: string; email: string; avatar?: string }) => void;
+  mode?: 'login' | 'register';
 }
 
-export default function LoginForm({ onAuthenticated }: LoginFormProps) {
+export default function LoginForm({ onAuthenticated, mode = 'login' }: LoginFormProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState(''); //only for sign-up
+  const [name, setName] = useState(''); 
   const [showPassword, setShowPassword] = useState(false);
   const [showTermsDialog, setShowTermsDialog] = useState(false);
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(mode === 'login');
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsLogin(mode === 'login');
+  }, [mode]);
+
+  const toggleAuthMode = () => {
+    const target = isLogin ? '/auth/register' : '/auth/login';
+    router.push(target);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,12 +69,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
         ? { email, password }
         : { email, password, name };
 
-      console.log('Login Form: Attempting authentication', { 
-        endpoint: `${API_BASE_URL}${endpoint}`, 
-        isLogin,
-        email: email ? email.substring(0, 3) + '***' : 'empty' // Log partial email for debugging
-      });
-
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -73,29 +78,20 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
       });
 
       const data = await response.json();
-      console.log('Login Form: API Response', { 
-        status: response.status, 
-        ok: response.ok, 
-        data: data 
-      });
 
       if (!response.ok) {
         throw new Error(data.message || `${isLogin ? 'Login' : 'Registration'} failed`);
       }
 
       if (data.success && data.data) {
-        // Store tokens
         localStorage.setItem('authToken', data.data.accessToken);
         localStorage.setItem('refreshToken', data.data.refreshToken);
         
-        // Store user info
         const userData = {
           name: data.data.user.name,
-          email: data.data.user.email,
-          avatar: data.data.user.avatar,
+          email: data.data.user.email
         };
         
-        // Store user data in localStorage for the AI page to access
         localStorage.setItem('user', JSON.stringify(userData));
         console.log('Login Form: User data stored in localStorage', userData);
 
@@ -109,7 +105,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
         }
       }
     } catch (error) {
-      console.error('Authentication error:', error);
       toast({
         title: "Authentication Failed",
         description: error instanceof Error ? error.message : "An error occurred. Please try again.",
@@ -121,18 +116,15 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
   };
 
   const handleGoogleLogin = () => {
-    // Redirect to Google OAuth
     window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   const handleFacebookLogin = () => {
-    // Redirect to Facebook OAuth
     window.location.href = `${API_BASE_URL}/auth/facebook`;
   };
   
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
-      {/* Dark Dotted Grid Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -183,7 +175,7 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
               className="mt-8"
             >
               <Button 
-                onClick={() => setIsLogin(false)}
+                onClick={() => router.push('/auth/register')}
                 className="bg-gradient-to-r from-indigo-600 to-blue-600 text-center text-white hover:from-indigo-700 hover:to-blue-700 transition-all duration-300 px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Sign Up as a Lawyer
@@ -192,7 +184,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
           </div>
         </motion.div>
 
-        {/* Right Side - Login/Register Form */}
         <motion.div
           className="flex flex-1 items-center justify-center p-4 md:p-8 overflow-y-auto max-h-screen"
           initial={{ opacity: 0, x: 50 }}
@@ -207,7 +198,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
           >
             <Card className="border-border/70 bg-card/20 w-full shadow-[0_10px_26px_#e0e0e0a1] backdrop-blur-lg dark:shadow-none max-h-[90vh] overflow-y-auto">
               <CardContent className="space-y-4 p-6 md:p-8">
-                {/* Logo and Header */}
                 <motion.div
                   className="space-y-4 text-center"
                   initial={{ opacity: 0, y: 20 }}
@@ -242,7 +232,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                 </motion.div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Name Input (Register only) */}
                   {!isLogin && (
                     <motion.div
                       className="space-y-2"
@@ -263,7 +252,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                     </motion.div>
                   )}
 
-                  {/* Email Input */}
                   <motion.div
                     className="space-y-2"
                     initial={{ opacity: 0, y: 20 }}
@@ -281,7 +269,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                     />
                   </motion.div>
 
-                  {/* Password Input */}
                   <motion.div
                     className="space-y-2"
                     initial={{ opacity: 0, y: 20 }}
@@ -313,7 +300,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                     </div>
                   </motion.div>
 
-                  {/* Submit Button */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -337,11 +323,10 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                     </Button>
                   </motion.div>
 
-                  {/* Toggle Login/Register */}
                   <div className="text-center text-sm">
                     <button
                       type="button"
-                      onClick={() => setIsLogin(!isLogin)}
+                      onClick={toggleAuthMode}
                       className="text-blue-400 hover:text-blue-300 transition-colors"
                     >
                       {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
@@ -349,7 +334,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                   </div>
                 </form>
 
-                {/* Divider */}
                 <motion.div
                   className="relative"
                   initial={{ opacity: 0 }}
@@ -366,7 +350,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                   </div>
                 </motion.div>
 
-                {/* OAuth Buttons */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -413,7 +396,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
                   </div>
                 </motion.div>
 
-                {/* Terms */}
                 <motion.p
                   className="text-muted-foreground mt-1 text-center text-xs"
                   initial={{ opacity: 0 }}
@@ -444,7 +426,6 @@ export default function LoginForm({ onAuthenticated }: LoginFormProps) {
         </motion.div>
       </div>
       
-      {/* Terms and Privacy Dialogs */}
       <TocDialog 
         open={showTermsDialog} 
         onOpenChange={setShowTermsDialog} 

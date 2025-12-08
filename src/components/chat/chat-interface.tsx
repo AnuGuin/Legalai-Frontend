@@ -132,14 +132,6 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
     setSelectedMode(mode as "chat" | "agentic");
   }, []);
 
-  const updateConversationById = useCallback(
-    (id: string, updater: (conv: Conversation | undefined) => Conversation) => {
-      setConversations((prev) =>
-        prev.map((conv) => (conv.id === id ? updater(conv) : conv))
-      );
-    },
-    []
-  );
 
   const handleSendMessage = useCallback(
     async (content: string, file?: File) => {
@@ -371,36 +363,6 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
       })),
     [conversations]
   );
-
-  if (isLoadingConversations) {
-    return (
-      <div className="flex h-screen relative overflow-hidden">
-        <BackgroundLayer />
-        <ChatSidebar
-          user={user}
-          conversations={[]}
-          activeConversationId={undefined}
-          onSelectConversation={() => {}}
-          onNewConversation={() => {}}
-          onLogout={onLogout}
-        />
-        <div className="flex-1 flex flex-col relative z-10 min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-[rgb(33,33,33)]">
-            <ChatModeSelector
-              variant="default"
-              onModeChange={handleModeChange}
-              onTempChatClick={handleTempChatClick}
-              onShareClick={handleShareConversation}
-              onDeleteClick={handleDeleteConversation}
-            />
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <ConversationSkeleton />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div

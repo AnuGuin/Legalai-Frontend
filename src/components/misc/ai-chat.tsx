@@ -305,8 +305,8 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                                 value={value}
                                 placeholder={
                                     mode === 'agentic' 
-                                        ? "Ask Nyay Mitra Agent..." 
-                                        : "Ask LegalAI..."
+                                        ? "Ask Nyay Mitra Agent" 
+                                        : "Ask LegalAI"
                                 }
                                 className="w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
                                 ref={textareaRef}

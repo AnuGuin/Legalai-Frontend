@@ -1,10 +1,6 @@
 import { useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-/**
- * Custom hook for handling smooth page transitions with loading states
- * Ensures the loader stays visible until the new page is fully ready
- */
 export function usePageTransition() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

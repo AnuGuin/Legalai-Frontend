@@ -104,7 +104,7 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
             <div className="space-y-4">
               <Label htmlFor="source-lang" className="text-zinc-200">Input Language</Label>
               <Select value={sourceLang} onValueChange={setSourceLang}>
-                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100">
+                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100 rounded-2xl">
                   <SelectValue placeholder="Select input language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -120,7 +120,7 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
             <div className="space-y-4">
               <Label htmlFor="target-lang" className="text-zinc-200">Output Language</Label>
               <Select value={targetLang} onValueChange={setTargetLang}>
-                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100">
+                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100 rounded-2xl">
                   <SelectValue placeholder="Select output language" />
                 </SelectTrigger>
                 <SelectContent>
