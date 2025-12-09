@@ -178,6 +178,10 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                 variant: "destructive",
             });
         }
+
+        if (validFiles.length > 0) {
+            setUploadedFiles(prev => [...prev, ...validFiles]);
+        }
         
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
