@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import BounceLoader from "@/components/ui/bounce-loader";
 import { usePageTransition } from "@/hooks/use-page-transition";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 interface User {
   name: string;
@@ -12,8 +13,10 @@ interface User {
   avatar?: string;
 }
 
-export default function AIPage() {
+export default function AIConversationPage() {
   const { navigate, isNavigating } = usePageTransition();
+  const params = useParams();
+  const conversationId = params.conversationId as string | undefined;
   const [user, setUser] = useState<User | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -68,7 +71,11 @@ export default function AIPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <ChatInterface user={user} onLogout={handleLogout} initialConversationId={undefined} />
+      <ChatInterface 
+        user={user} 
+        onLogout={handleLogout} 
+        initialConversationId={conversationId}
+      />
     </motion.div>
   );
 }

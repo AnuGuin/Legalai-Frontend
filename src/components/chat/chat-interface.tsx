@@ -15,6 +15,7 @@ import { useStream } from "@/hooks/use-stream";
 interface ChatInterfaceProps {
   user: { name: string; email: string; avatar?: string };
   onLogout: () => void;
+  initialConversationId?: string;
 }
 
 function transformMessage(msg: BackendMessage): Message {
@@ -62,9 +63,9 @@ const BackgroundLayer: React.FC = () => (
   />
 );
 
-export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
+export function ChatInterface({ user, onLogout, initialConversationId }: ChatInterfaceProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConversationId ?? null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingActiveConversation, setIsLoadingActiveConversation] = useState(false);
@@ -99,6 +100,14 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
     [toast]
   );
 
+  const updateConversationUrl = useCallback((conversationId: string | null) => {
+    if (conversationId) {
+      window.history.replaceState(null, '', `/ai/${conversationId}`);
+    } else {
+      window.history.replaceState(null, '', '/ai');
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     const load = async () => {
@@ -115,6 +124,34 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
           };
         });
         setConversations(transformed);
+
+        if (initialConversationId && transformed.some(c => c.id === initialConversationId)) {
+          setIsLoadingActiveConversation(true);
+          try {
+            const fullConversation = await apiService.getConversationMessages(initialConversationId);
+            const transformedMessages = fullConversation.messages?.map(transformMessage) || [];
+            setConversations((prev) =>
+              prev.map((c) =>
+                c.id === initialConversationId
+                  ? {
+                      ...fullConversation,
+                      messages: transformedMessages,
+                      lastMessage: transformedMessages[transformedMessages.length - 1]?.content || "",
+                    }
+                  : c
+              )
+            );
+          } catch (error) {
+            handleErrorToast("Failed to load conversation", error);
+            updateConversationUrl(null);
+            setActiveConversationId(null);
+          } finally {
+            setIsLoadingActiveConversation(false);
+          }
+        } else if (initialConversationId && !transformed.some(c => c.id === initialConversationId)) {
+          updateConversationUrl(null);
+          setActiveConversationId(null);
+        }
       } catch (err) {
         handleErrorToast("Failed to load conversations", err);
       } finally {
@@ -126,7 +163,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
     return () => {
       mounted = false;
     };
-  }, [handleErrorToast]);
+  }, [handleErrorToast, initialConversationId, updateConversationUrl]);
 
   const handleModeChange = useCallback((mode: string) => {
     setSelectedMode(mode as "chat" | "agentic");
@@ -155,6 +192,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
 
           setConversations((prev) => [transformedConv, ...prev]);
           setActiveConversationId(newConv.id);
+          updateConversationUrl(newConv.id);
           convId = newConv.id;
           localConversation = transformedConv;
         }
@@ -256,17 +294,19 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
         setIsLoading(false);
       }
     },
-    [activeConversation, activeConversationId, selectedMode, startStreaming, toast]
+    [activeConversation, activeConversationId, selectedMode, startStreaming, toast, updateConversationUrl]
   );
 
   const handleNewConversation = useCallback(() => {
     setActiveConversationId(null);
-  }, []);
+    updateConversationUrl(null);
+  }, [updateConversationUrl]);
 
   const handleSelectConversation = useCallback(
     async (id: string) => {
       setIsLoadingActiveConversation(true);
       setActiveConversationId(id);
+      updateConversationUrl(id);
       try {
         const fullConversation = await apiService.getConversationMessages(id);
         const transformedMessages = fullConversation.messages?.map(transformMessage) || [];
@@ -289,7 +329,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
         setIsLoadingActiveConversation(false);
       }
     },
-    [handleErrorToast]
+    [handleErrorToast, updateConversationUrl]
   );
 
   const handleShareConversation = useCallback(() => {
@@ -337,7 +377,10 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
     try {
       await apiService.deleteConversation(activeConversation.id);
       setConversations((prev) => prev.filter((conv) => conv.id !== activeConversation.id));
-      if (activeConversationId === activeConversation.id) setActiveConversationId(null);
+      if (activeConversationId === activeConversation.id) {
+        setActiveConversationId(null);
+        updateConversationUrl(null);
+      }
       toast({
         title: "Conversation deleted",
         description: "The conversation has been deleted successfully.",
@@ -347,7 +390,7 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
     } finally {
       setIsDeleteDialogOpen(false);
     }
-  }, [activeConversation, activeConversationId, handleErrorToast, toast]);
+  }, [activeConversation, activeConversationId, handleErrorToast, toast, updateConversationUrl]);
 
   const handleTempChatClick = useCallback(() => {
     handleNewConversation();
