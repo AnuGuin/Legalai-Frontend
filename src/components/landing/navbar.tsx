@@ -115,7 +115,7 @@ const buttonVariants = {
 const menuItems = [
     { name: 'Home', href: '#home' },
     { name: 'Features', href: '#features' },
-    { name: 'Testimonials', href: '#testimonial' },
+    { name: 'FAQ', href: '#faq' },
     { name: 'Pricing', href: '#pricing' }
 ]
 
@@ -162,7 +162,6 @@ export const Navbar = ({ animate = false }: { animate?: boolean }) => {
                 <motion.div 
                     variants={containerVariants}
                     animate={isScrolled ? "scrolled" : "initial"}
-                    // CSS transitions and maxWidth classes are removed from here
                     className={cn(
                         'mx-auto mt-2 px-6 lg:px-12', 
                         isScrolled && 'bg-background/50 rounded-2xl border backdrop-blur-lg lg:px-5 shadow-lg'

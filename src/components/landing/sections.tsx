@@ -1,7 +1,6 @@
 "use client";
 
 import CardFlip from "@/components/ui/card-flip";
-import { TestimonialCard } from "@/components/ui/testimonial-card";
 
 import { Brain, FileText, Shield } from "lucide-react";
 import { useGSAP } from "@/hooks/use-gsap";
@@ -61,7 +60,6 @@ export function Features() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Set initial states for better performance
     gsap.set(headerRef.current.children, {
       y: 30,
       opacity: 0,
@@ -75,7 +73,6 @@ export function Features() {
       force3D: true,
     });
 
-    // Header animation - optimized
     gsap.to(headerRef.current.children, {
       y: 0,
       opacity: 1,
@@ -91,7 +88,6 @@ export function Features() {
       },
     });
 
-    // Cards animation - optimized
     gsap.to(cardsRef.current.children, {
       y: 0,
       opacity: 1,
@@ -113,31 +109,17 @@ export function Features() {
     <section
       ref={sectionRef}
       id="features"
-      className="min-h-screen w-full py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative px-4 sm:px-6 lg:px-8 overflow-hidden will-change-transform"
+      className="min-h-screen w-full py-20 relative px-4 sm:px-6 lg:px-8 overflow-hidden will-change-transform"
       style={{ transform: "translateZ(0)" }}
     >
-      {/* Top Fade Grid Background */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(148, 163, 184, 0.2) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(148, 163, 184, 0.2) 1px, transparent 1px)
-          `,
-          backgroundSize: "30px 30px",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-          maskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-        }}
-      />
+      
 
       <div className="relative max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 dark:from-blue-400 dark:via-blue-300 dark:to-indigo-400 bg-clip-text text-transparent">
             Powerful Features for Everyone
           </h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Discover how LegalAI transforms your legal workflow with
             cutting-edge AI technology
           </p>
@@ -272,10 +254,8 @@ export function Testimonial() {
     )
       return;
 
-    // Register ScrollTrigger plugin
     gsap.registerPlugin(ScrollTrigger);
 
-    // Header animation
     gsap.fromTo(
       headerRef.current.children,
       {
@@ -297,7 +277,6 @@ export function Testimonial() {
       }
     );
 
-    // Row animations with stagger
     gsap.fromTo(
       [row1Ref.current, row2Ref.current],
       {
@@ -320,146 +299,6 @@ export function Testimonial() {
     );
   }, []);
 
-  return (
-    <section
-      ref={sectionRef}
-      id="testimonial"
-      className="relative py-20 overflow-hidden scroll-container gpu-accelerated w-full"
-    >
-      {/* Full-width background with extended blur */}
-      <div className="absolute inset-0 w-screen left-1/2 transform -translate-x-1/2 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-indigo-50/30 dark:from-blue-950/30 dark:via-transparent dark:to-indigo-950/30" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
-          }}
-        />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div ref={headerRef} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent mt-8 p-2">
-            Trusted by Legal Professionals
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            See what our clients say about transforming their legal practice
-            with LegalAI
-          </p>
-        </div>
-
-        <div className="relative space-y-1 h-[600px] w-full">
-          {/* Enhanced fade masks for full width coverage */}
-          <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-background via-background/90 to-transparent z-20 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-background via-background/90 to-transparent z-20 pointer-events-none" />
-
-          {/* First row - Left to Right */}
-          <div className="relative overflow-hidden h-[295px] flex items-center w-full">
-            <div
-              ref={row1Ref}
-              className="testimonial-scroll-left flex gap-6"
-              style={{ width: "max-content" }}
-            >
-              {/* Create seamless loop with 6 copies for smoother animation */}
-              {Array.from({ length: 6 }, (_, setIndex) =>
-                firstRow.map((testimonial, index) => (
-                  <TestimonialCard
-                    key={`row1-set${setIndex}-${index}`}
-                    name={testimonial.name}
-                    role={testimonial.role}
-                    company={testimonial.company}
-                    content={testimonial.content}
-                    rating={testimonial.rating}
-                    avatar={testimonial.avatar}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Second row - Right to Left */}
-          <div className="relative overflow-hidden h-[295px] flex items-center w-full">
-            <div
-              ref={row2Ref}
-              className="testimonial-scroll-right flex gap-6"
-              style={{ width: "max-content" }}
-            >
-              {/* Create seamless loop with 6 copies for smoother animation */}
-              {Array.from({ length: 6 }, (_, setIndex) =>
-                secondRow.map((testimonial, index) => (
-                  <TestimonialCard
-                    key={`row2-set${setIndex}-${index}`}
-                    name={testimonial.name}
-                    role={testimonial.role}
-                    company={testimonial.company}
-                    content={testimonial.content}
-                    rating={testimonial.rating}
-                    avatar={testimonial.avatar}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style jsx global>{`
-        @keyframes testimonialScrollLeft {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          100% {
-            transform: translate3d(-16.666%, 0, 0);
-          }
-        }
-
-        @keyframes testimonialScrollRight {
-          0% {
-            transform: translate3d(-16.666%, 0, 0);
-          }
-          100% {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
-        .testimonial-scroll-left {
-          animation: testimonialScrollLeft 30s linear infinite;
-          will-change: transform;
-          backface-visibility: hidden;
-          transform: translateZ(0);
-        }
-
-        .testimonial-scroll-right {
-          animation: testimonialScrollRight 30s linear infinite;
-          will-change: transform;
-          backface-visibility: hidden;
-          transform: translateZ(0);
-        }
-
-        .testimonial-scroll-left:hover,
-        .testimonial-scroll-right:hover {
-          animation-play-state: paused;
-        }
-
-        /* Reduce motion for accessibility */
-        @media (prefers-reduced-motion: reduce) {
-          .testimonial-scroll-left,
-          .testimonial-scroll-right {
-            animation: none;
-          }
-        }
-
-        /* Performance optimizations */
-        .testimonial-scroll-left,
-        .testimonial-scroll-right {
-          contain: layout style paint;
-          -webkit-transform: translateZ(0);
-          transform: translateZ(0);
-        }
-      `}</style>
-    </section>
-  );
 }
 
 export function Pricing() {
@@ -471,8 +310,6 @@ export function Pricing() {
     if (!sectionRef.current || !headerRef.current || !cardsRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
-
-    // Set initial states for better performance
     gsap.set(headerRef.current.children, {
       y: 30,
       opacity: 0,
@@ -486,7 +323,6 @@ export function Pricing() {
       force3D: true,
     });
 
-    // Header animation - optimized
     gsap.to(headerRef.current.children, {
       y: 0,
       opacity: 1,
@@ -502,7 +338,6 @@ export function Pricing() {
       },
     });
 
-    // Cards animation - optimized
     gsap.to(cardsRef.current.children, {
       y: 0,
       opacity: 1,
@@ -524,24 +359,12 @@ export function Pricing() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden will-change-transform"
+      className="min-h-screen w-full py-20 relative px-4 sm:px-6 lg:px-8 overflow-hidden will-change-transform"
       style={{ transform: "translateZ(0)" }}
     >
-      {/* Enhanced background with beams effect */}
-      <div className="absolute inset-0 opacity-25">
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/40 via-indigo-50/20 to-blue-100/40 dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-blue-900/40" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(45deg, rgba(59, 130, 246, 0.05) 0%, transparent 25%, transparent 75%, rgba(99, 102, 241, 0.05) 100%)",
-          }}
-        />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
             Simple, Transparent Pricing
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -559,7 +382,7 @@ export function Pricing() {
               Starter
             </h3>
             <div className="mb-6">
-              <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
                 Free
               </span>
               <span className="text-muted-foreground">/month</span>
@@ -828,30 +651,31 @@ export function CallToAction() {
   return (
     <section
       ref={sectionRef}
-      className="py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
+      className="min-h-screen w-full py-20 relative px-4 sm:px-6 lg:px-8 overflow-hidden will-change-transform"
+      style={{ transform: "translateZ(0)" }}
     >
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div ref={contentRef} className="text-center max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-8 leading-tight">
             Ready to Transform Your{" "}
             <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
               Legal Practice?
             </span>
           </h2>
 
-          <p className="text-xl md:text-2xl text-white/80 mb-12 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-foreground leading-relaxed max-w-3xl mx-auto">
             Join thousands of legal professionals who are already using LegalAI
             to streamline their workflow and deliver better results for their
             clients.
           </p>
 
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mt-12">
             <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 min-w-[200px]">
               Start Free Trial
             </button>
           </div>
 
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/60">
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-muted-foreground">
             <div className="flex items-center gap-2">
               <svg
                 className="w-5 h-5 text-blue-400"

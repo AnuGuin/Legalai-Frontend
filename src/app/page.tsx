@@ -3,11 +3,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
-import { Features, Testimonial, Pricing, CallToAction } from "@/components/landing/sections";
+import { Features, Pricing, CallToAction } from "@/components/landing/sections";
 import { Footer } from "@/components/landing/footer";
 import BounceLoader from "@/components/ui/bounce-loader";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 import { usePageTransition } from "@/hooks/use-page-transition";
+import FAQsTwo from "@/components/landing/faq";
 
+ 
 export default function LandingPage() {
   const { navigate, isNavigating } = usePageTransition();
 
@@ -17,7 +20,7 @@ export default function LandingPage() {
 
   return (
     <>
-      {/* Bounce Loader during transitions */}
+      {/* Loader */}
       <AnimatePresence mode="wait">
         {isNavigating && (
           <motion.div
@@ -33,25 +36,28 @@ export default function LandingPage() {
         )}
       </AnimatePresence>
 
-      {/* Main landing content */}
+      <div className="fixed inset-0 z-0 w-full h-full pointer-events-none">
+          <BackgroundBeams/>
+      </div>
+
       <motion.div
         animate={{ 
           opacity: isNavigating ? 0 : 1,
           scale: isNavigating ? 0.98 : 1 
         }}
         transition={{ duration: 0.3 }}
-        className="min-h-screen bg-background scroll-smooth"
+        className="relative z-10 min-h-screen bg-transparent pt-16 -mt-16 scroll-smooth"
       >
-        <Navbar animate={true} />
+        <Navbar animate />
         <main className="scroll-container">
           <section id="home">
-            <Hero onGetStarted={handleGetStarted} />
+            <Hero/>
           </section>
-          <section id="features">
+          <section id="features" className="mt-16">
             <Features />
           </section>
-          <section id="testimonial">
-            <Testimonial />
+          <section id="faq" className="-mt-12">
+            <FAQsTwo />
           </section>
           <section id="pricing">
             <Pricing />
