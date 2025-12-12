@@ -88,12 +88,11 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent 
-        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]"
-        style={{ backgroundColor: 'rgb(53, 53, 53)' }}
+        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 backdrop-blur-sm border border-slate-200/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.1)] dark:shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] bg-white dark:bg-[rgb(53,53,53)]"
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-zinc-100">
-            <Languages className="w-5 h-5 text-blue-400" />
+          <DialogTitle className="flex items-center gap-2 text-slate-900 dark:text-zinc-100">
+            <Languages className="w-5 h-5 text-blue-500 dark:text-blue-400" />
             Select Translation Languages
           </DialogTitle>
         </DialogHeader>
@@ -102,9 +101,9 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
           {/* Language Selection */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
-              <Label htmlFor="source-lang" className="text-zinc-200">Input Language</Label>
+              <Label htmlFor="source-lang" className="text-slate-700 dark:text-zinc-200">Input Language</Label>
               <Select value={sourceLang} onValueChange={setSourceLang}>
-                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100 rounded-2xl">
+                <SelectTrigger className="border-slate-300 dark:border-zinc-600/40 bg-slate-100 dark:bg-zinc-700/30 text-slate-900 dark:text-zinc-100 rounded-2xl">
                   <SelectValue placeholder="Select input language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -118,9 +117,9 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
             </div>
 
             <div className="space-y-4">
-              <Label htmlFor="target-lang" className="text-zinc-200">Output Language</Label>
+              <Label htmlFor="target-lang" className="text-slate-700 dark:text-zinc-200">Output Language</Label>
               <Select value={targetLang} onValueChange={setTargetLang}>
-                <SelectTrigger className="border-zinc-600/40 bg-zinc-700/30 text-zinc-100 rounded-2xl">
+                <SelectTrigger className="border-slate-300 dark:border-zinc-600/40 bg-slate-100 dark:bg-zinc-700/30 text-slate-900 dark:text-zinc-100 rounded-2xl">
                   <SelectValue placeholder="Select output language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -135,19 +134,19 @@ export function TranslateModal({ open, onOpenChange, onLanguageSelect }: Transla
           </div>
 
           {/* Information message */}
-          <div className="p-3 bg-zinc-700/30 rounded-2xl border border-zinc-600/30 ">
-            <p className="text-sm text-zinc-300 text-center">
+          <div className="p-3 bg-slate-100 dark:bg-zinc-700/30 rounded-2xl border border-slate-200 dark:border-zinc-600/30 ">
+            <p className="text-sm text-slate-600 dark:text-zinc-300 text-center">
               After selecting languages, type your message in the chat input to translate it.
             </p>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-between pt-4 border-t border-zinc-600/20">
+        <div className="flex justify-between pt-4 border-t border-slate-200 dark:border-zinc-600/20">
           <Button 
             variant="outline" 
             onClick={handleClose}
-            className="rounded-xl border-zinc-600/40 bg-transparent text-zinc-300 hover:bg-zinc-700/50 hover:text-zinc-100"
+            className="rounded-xl border-slate-300 dark:border-zinc-600/40 bg-transparent text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700/50 hover:text-slate-900 dark:hover:text-zinc-100"
           >
             Cancel
           </Button>

@@ -4,6 +4,7 @@ import {
   Playfair_Display,
   Source_Code_Pro,
 } from "next/font/google";
+// @ts-ignore
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
@@ -47,7 +48,7 @@ export default function RootLayout({
         <HeroUIProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >

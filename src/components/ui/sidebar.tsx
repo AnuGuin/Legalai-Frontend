@@ -3,6 +3,7 @@
 import React, { createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface SidebarContextType {
   open: boolean;
@@ -31,8 +32,8 @@ export function Sidebar({ children, open, setOpen, className }: SidebarProps) {
     <SidebarContext.Provider value={{ open, setOpen }}>
       <motion.div
         className={cn(
-          "relative flex h-full w-fit flex-col border-r bg-neutral-800",
-          open ? "border-neutral-700 shadow-xl shadow-black/40" : "border-neutral-700",
+          "relative flex h-full w-fit flex-col border-r bg-white dark:bg-neutral-800",
+          open ? "border-slate-200 dark:border-neutral-700 shadow-xl shadow-slate-300/40 dark:shadow-black/40" : "border-slate-200 dark:border-neutral-700",
           className
         )}
         initial={false}
@@ -58,6 +59,13 @@ interface SidebarBodyProps {
 }
 
 export function SidebarBody({ children, className, open }: SidebarBodyProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  
+  const bgColor = open 
+    ? (isDark ? "rgb(23, 23, 23)" : "rgb(241, 245, 249)") 
+    : (isDark ? "rgb(33, 33, 33)" : "rgb(226, 232, 240)");
+  
   return (
     <motion.div
       className={cn(
@@ -65,7 +73,7 @@ export function SidebarBody({ children, className, open }: SidebarBodyProps) {
         className
       )}
       animate={{
-        backgroundColor: open ? "rgb(23, 23, 23)" : "rgb(33, 33, 33)"
+        backgroundColor: bgColor
       }}
       transition={{
         duration: 0.4,
@@ -93,7 +101,7 @@ export function SidebarLink({ link, className }: SidebarLinkProps) {
     <a
       href={link.href}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-300",
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 dark:text-neutral-400 transition-colors hover:bg-slate-200 dark:hover:bg-neutral-800 hover:text-slate-700 dark:hover:text-neutral-300",
         className
       )}
     >

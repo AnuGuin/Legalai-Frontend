@@ -34,8 +34,7 @@ export default function PrivacyDialog({ open, onOpenChange }: PrivacyDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-lg [&>button:last-child]:top-3.5 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]"
-        style={{ backgroundColor: 'rgb(53, 53, 53)' }}>
+      <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-lg [&>button:last-child]:top-3.5 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] bg-white dark:bg-[rgb(53,53,53)]">
         <DialogHeader className="contents space-y-0 text-left">
           <DialogTitle className="border-b border-zinc-200/60 dark:border-zinc-800/60 px-6 py-4 text-base">
             Privacy Policy
@@ -177,12 +176,12 @@ export default function PrivacyDialog({ open, onOpenChange }: PrivacyDialogProps
             </span>
           )}
           <DialogClose asChild>
-            <Button type="button" variant="outline" className="bg-zinc-700 text-zinc-200 border-zinc-600 hover:bg-zinc-600 hover:text-zinc-100">
+            <Button type="button" variant="outline" className="bg-slate-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border-zinc-300 dark:border-zinc-600 hover:bg-slate-200 dark:hover:bg-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100">
               Cancel
             </Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button type="button" disabled={!hasReadToBottom} className="bg-zinc-600 text-zinc-100 hover:bg-zinc-500 disabled:bg-zinc-800 disabled:text-zinc-400">
+            <Button type="button" disabled={!hasReadToBottom} className="bg-blue-600 dark:bg-zinc-600 text-white dark:text-zinc-100 hover:bg-blue-700 dark:hover:bg-zinc-500 disabled:bg-slate-300 dark:disabled:bg-zinc-800 disabled:text-slate-500 dark:disabled:text-zinc-400">
               I Agree
             </Button>
           </DialogClose>

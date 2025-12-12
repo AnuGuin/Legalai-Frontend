@@ -116,19 +116,19 @@ function ChatMessage({
 
   return (
     <div className="w-full relative group animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <div className="text-neutral-100 rounded-2xl p-4 relative">
+      <div className="text-slate-900 dark:text-neutral-100 rounded-2xl p-4 relative">
 
         <MarkdownResponse
-          className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-neutral-100 prose-headings:font-semibold
-          prose-p:text-neutral-200 prose-p:leading-relaxed
-          prose-strong:text-neutral-100 prose-strong:font-semibold
-          prose-code:text-blue-300 prose-code:bg-neutral-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-          prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-700
-          prose-blockquote:border-l-blue-500 prose-blockquote:text-neutral-300
-          prose-ul:text-neutral-200 prose-ol:text-neutral-200
-          prose-li:text-neutral-200
-          prose-a:text-blue-400 hover:prose-a:underline"
+          className="prose prose-slate dark:prose-invert prose-sm max-w-none
+          prose-headings:text-slate-900 dark:prose-headings:text-neutral-100 prose-headings:font-semibold
+          prose-p:text-slate-700 dark:prose-p:text-neutral-200 prose-p:leading-relaxed
+          prose-strong:text-slate-900 dark:prose-strong:text-neutral-100 prose-strong:font-semibold
+          prose-code:text-blue-600 dark:prose-code:text-blue-300 prose-code:bg-slate-100 dark:prose-code:bg-neutral-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+          prose-pre:bg-slate-100 dark:prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-slate-200 dark:prose-pre:border-neutral-700
+          prose-blockquote:border-l-blue-500 prose-blockquote:text-slate-600 dark:prose-blockquote:text-neutral-300
+          prose-ul:text-slate-700 dark:prose-ul:text-neutral-200 prose-ol:text-slate-700 dark:prose-ol:text-neutral-200
+          prose-li:text-slate-700 dark:prose-li:text-neutral-200
+          prose-a:text-blue-600 dark:prose-a:text-blue-400 hover:prose-a:underline"
         >
           {displayContent || ""}
         </MarkdownResponse>
@@ -140,22 +140,22 @@ function ChatMessage({
             transition-all duration-300 pointer-events-none group-hover:pointer-events-auto
           "
         >
-          <div className="bg-neutral-800/90 backdrop-blur-sm border border-neutral-700/50 rounded-lg p-1 shadow-lg">
+          <div className="bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-neutral-700/50 rounded-lg p-1 shadow-lg">
             <Actions>
               <Action onClick={handleCopy} tooltip="Copy">
-                <Copy className="w-4 h-4 text-neutral-400 hover:text-neutral-200" />
+                <Copy className="w-4 h-4 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200" />
               </Action>
 
               <Action onClick={handleLike} tooltip="Like">
-                <ThumbsUp className="w-4 h-4 text-neutral-400 hover:text-green-400" />
+                <ThumbsUp className="w-4 h-4 text-slate-500 dark:text-neutral-400 hover:text-green-500 dark:hover:text-green-400" />
               </Action>
 
               <Action onClick={handleDislike} tooltip="Dislike">
-                <ThumbsDown className="w-4 h-4 text-neutral-400 hover:text-red-400" />
+                <ThumbsDown className="w-4 h-4 text-slate-500 dark:text-neutral-400 hover:text-red-500 dark:hover:text-red-400" />
               </Action>
 
               <Action onClick={handleRegenerate} tooltip="Regenerate">
-                <RotateCcw className="w-4 h-4 text-neutral-400 hover:text-blue-400" />
+                <RotateCcw className="w-4 h-4 text-slate-500 dark:text-neutral-400 hover:text-blue-500 dark:hover:text-blue-400" />
               </Action>
             </Actions>
           </div>
@@ -170,8 +170,8 @@ function ChatMessage({
 function LoadingMessage() {
   return (
     <div className="flex gap-3 p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <div className="h-8 w-8 rounded-full border border-blue-300/20 flex items-center justify-center">
-        <div className="w-4 h-4 bg-blue-400 rounded-full animate-pulse" />
+      <div className="h-8 w-8 rounded-full border border-blue-400/20 dark:border-blue-300/20 flex items-center justify-center">
+        <div className="w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded-full animate-pulse" />
       </div>
       <div className="flex-1 flex justify-start items-center">
         <AITextLoading
@@ -181,7 +181,7 @@ function LoadingMessage() {
             "Researching relevant laws...",
             "Formulating response...",
           ]}
-          className="!text-sm !font-mono !font-normal !text-neutral-300"
+          className="!text-sm !font-mono !font-normal !text-slate-600 dark:!text-neutral-300"
           interval={1000}
         />
       </div>
@@ -200,7 +200,7 @@ function WelcomeScreen({ user, onSendMessage, selectedMode }: {
    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center justify-center p-6" style={{ top: 'calc(50% - 30px)' }}>
       <div className="text-center max-w-2xl w-full">
         <div className="mb-2">
-          <h1 className="text-4xl font-semibold mb-4 text-blue-400">
+          <h1 className="text-4xl font-semibold mb-4 text-blue-600 dark:text-blue-400">
             Hello {user.name.split(' ')[0]}
           </h1>
           <div>
@@ -362,7 +362,7 @@ export const ChatMessagesArea = forwardRef <ChatMessagesAreaRef, ChatMessagesAre
               />
             </div>
 
-            <div className="flex items-center justify-center font-light text-xs gap-1 mt-2">
+            <div className="flex items-center justify-center font-light text-xs gap-1 mt-2 text-slate-500 dark:text-white/70">
               <p>LegalAI can make mistakes. Refer to</p>
               <a
                 href="#cookies"
@@ -370,7 +370,7 @@ export const ChatMessagesArea = forwardRef <ChatMessagesAreaRef, ChatMessagesAre
                   e.preventDefault();
                   setIsCookieOpen(true);
                 }}
-                className="text-white/70 hover:text-white transition-colors"
+                className="text-slate-600 dark:text-white/70 hover:text-slate-800 dark:hover:text-white transition-colors"
               >
                 Cookie Policies
               </a>
@@ -386,7 +386,7 @@ export const ChatMessagesArea = forwardRef <ChatMessagesAreaRef, ChatMessagesAre
         {showScrollButton && (
           <button
             onClick={forceScrollToBottom}
-            className="absolute bottom-100 right-32 z-20 p-2 bg-neutral-800/80 backdrop-blur-sm border border-neutral-700 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all shadow-lg animate-in fade-in zoom-in duration-200"
+            className="absolute bottom-100 right-32 z-20 p-2 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-slate-200 dark:border-neutral-700 rounded-full text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-700 transition-all shadow-lg animate-in fade-in zoom-in duration-200"
             aria-label="Scroll to bottom"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-circle-arrow-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M8 12l4 4" /><path d="M12 8v8" /><path d="M16 12l-4 4" /></svg>

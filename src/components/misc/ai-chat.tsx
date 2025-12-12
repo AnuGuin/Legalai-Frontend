@@ -498,8 +498,7 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                                                 side="top"
                                                 align="start"
                                                 sideOffset={8}
-                                                className="w-48 p-2 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]"
-                                                style={{ backgroundColor: 'rgb(53, 53, 53)' }}
+                                                className="w-48 p-2 backdrop-blur-sm border border-slate-200/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.1)] dark:shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] bg-white dark:bg-[rgb(53,53,53)]"
                                             >
                                                 <div className="space-y-1">
                                                     {tools.map((tool) => (
@@ -607,12 +606,12 @@ export default function AI_Input({ onSendMessage, mode = 'chat', disabled = fals
                                                     className="relative group"
                                                 >
                                                     <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999]">
-                                                        <div className="bg-black dark:bg-white text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shadow-lg">
+                                                        <div className="bg-slate-800 dark:bg-white text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shadow-lg">
                                                             {file.name}
                                                             <div className="text-[10px] opacity-70 mt-0.5">
                                                                 {formatFileSize(file.size)}
                                                             </div>
-                                                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45"></div>
+                                                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 dark:bg-white rotate-45"></div>
                                                         </div>
                                                     </div>
                                                     

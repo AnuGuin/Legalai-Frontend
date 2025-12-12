@@ -48,7 +48,7 @@ export default function ChatSidebar({
         setOpen={setOpen}
         className={cn(
           "justify-between gap-4 p-3 h-full flex flex-col transition-colors duration-500 ease-out",
-          open ? "bg-neutral-900" : "bg-neutral-600"
+          open ? "bg-slate-100 dark:bg-neutral-900" : "bg-slate-200 dark:bg-neutral-600"
         )}
       >
         <div className="flex flex-1 flex-col overflow-hidden transition-all duration-500 ease-out">
@@ -59,8 +59,8 @@ export default function ChatSidebar({
             <Button
               onClick={onNewConversation}
               className={cn(
-                "w-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] text-white hover:bg-neutral-700 rounded-lg text-sm font-medium flex-shrink-0",
-                open ? "justify-start gap-2 px-3 py-2 text-left bg-neutral-800 border border-neutral-700" : "justify-center p-2 bg-transparent border-none"
+                "w-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-lg text-sm font-medium flex-shrink-0",
+                open ? "justify-start gap-2 px-3 py-2 text-left bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700" : "justify-center p-2 bg-transparent border-none"
               )}
             >
               <svg 
@@ -81,7 +81,7 @@ export default function ChatSidebar({
                 <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                 <path d="M16 5l3 3" />
               </svg>
-              {open && <span className="text-neutral-300 font-medium">New Chat</span>}
+              {open && <span className="text-slate-600 dark:text-neutral-300 font-medium">New Chat</span>}
             </Button>
           </div>
 
@@ -90,7 +90,7 @@ export default function ChatSidebar({
             {open ? (
               <>
                 <div className="px-2 py-1 flex-shrink-0">
-                  <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  <h3 className="text-xs font-semibold text-slate-500 dark:text-neutral-500 uppercase tracking-wider">
                     Recents
                   </h3>
                 </div>
@@ -105,20 +105,20 @@ export default function ChatSidebar({
                       className={cn(
                         "flex items-center rounded-lg text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] text-left w-full gap-3 px-3 py-2 flex-shrink-0",
                         activeConversationId === conversation.id
-                          ? "bg-neutral-800 text-neutral-100"
-                          : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-700"
+                          ? "bg-white dark:bg-neutral-800 text-slate-900 dark:text-neutral-100"
+                          : "text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-neutral-800 hover:text-slate-700 dark:hover:text-neutral-700"
                       )}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" /></svg>
                       <div className="flex-1 min-w-0">
-                        <p className="truncate font-medium text-neutral-200">
+                        <p className="truncate font-medium text-slate-800 dark:text-neutral-200">
                           {conversation.title}
                         </p>
                       </div>
                     </button>
                   ))
                   ) : (
-                    <div className="px-2 py-2 text-center text-xs text-neutral-500">
+                    <div className="px-2 py-2 text-center text-xs text-slate-400 dark:text-neutral-500">
                       No conversations yet
                     </div>
                   )}

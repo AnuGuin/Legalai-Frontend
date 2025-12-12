@@ -96,7 +96,7 @@ export default function FAQsTwo() {
         <section ref={sectionRef} className="py-16 md:py-24">
             <div className="mx-auto max-w-5xl px-4 md:px-6">
                 <div ref={headerRef} className="mx-auto text-center">
-                   <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-400 dark:via-blue-300 dark:to-indigo-400 bg-clip-text text-transparent">Frequently Asked Questions</h2>
+                   <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 dark:from-blue-400 dark:via-blue-300 dark:to-indigo-400 bg-clip-text text-transparent">Frequently Asked Questions</h2>
                     <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">Quick and comprehensive answers to common questions about our platform, services, and features.</p>
                 </div>
 
@@ -124,7 +124,7 @@ export default function FAQsTwo() {
                             href="#contact"
                             onClick={(e) => { e.preventDefault(); setIsContactOpen(true); }}
                             className="text-primary font-medium hover:underline">
-                            contact us
+                            Contact us
                         </Link>
                     </p>
                     <ContactUsModal open={isContactOpen} onOpenChange={setIsContactOpen} />

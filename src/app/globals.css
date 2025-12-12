@@ -3,9 +3,6 @@
 @source "../node_modules/streamdown/dist/index.js";
 @plugin "@tailwindcss/typography";
 
-/* Dark mode variant - removed @custom-variant for compatibility */
-
-/* Prevent blue background flash - set background immediately */
 html, body {
   background-color: transparent; /* Let the background from providers/theme-provider show through */
   margin: 0;
@@ -17,13 +14,11 @@ html, body {
   background-color: transparent; /* Let the background from providers/theme-provider show through */
 }
 
-/* Ensure loading screen covers everything */
 #__next {
   min-height: 100vh;
   background-color: inherit;
 }
 
-/* Loading screen specific styles */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -34,12 +29,10 @@ html, body {
   background: inherit;
 }
 
-/* Add padding for fixed navbar */
 body {
-  padding-top: 64px; /* 64px = h-16 (navbar height) */
+  padding-top: 64px; 
 }
 
-/* Ensure proper spacing for fixed navbar */
 .scroll-container {
   padding-top: 0;
 }
@@ -92,6 +85,9 @@ body {
   --shadow-2xl: 0px 5px 10px -2px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+  --sb-width: 12px;
+  --sb-thumb-color: rgba(59, 130, 246, 0.8); /* Tailwind Blue-500 with opacity */
+  --sb-thumb-color-hover: rgb(37, 99, 235);   /* Tailwind Blue-600 (Darker) */
 }
 
 .dark {
@@ -139,6 +135,8 @@ body {
   --shadow-lg: 0px 5px 10px -2px hsl(0 0% 0% / 0.10), 0px 4px 6px -3px hsl(0 0% 0% / 0.10);
   --shadow-xl: 0px 5px 10px -2px hsl(0 0% 0% / 0.10), 0px 8px 10px -3px hsl(0 0% 0% / 0.10);
   --shadow-2xl: 0px 5px 10px -2px hsl(0 0% 0% / 0.25);
+  --sb-thumb-color: rgba(107, 114, 128, 0.5); /* Tailwind Gray-500 with opacity */
+  --sb-thumb-color-hover: rgb(107, 114, 128);   /* Tailwind Gray-500 Opaque */
 }
 
 @theme inline {
@@ -202,25 +200,21 @@ body {
     @apply bg-background text-foreground;
   }
 }
-/* Custom styles for LegalAI landing page */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Account for fixed navbar */
+  scroll-padding-top: 80px; 
 }
 
-/* Ensure proper spacing for fixed navbar */
 body {
   padding-top: 0;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden; 
 }
 
-/* Smooth scrolling and performance optimizations */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Optimize animations for better performance */
 *,
 *::before,
 *::after {
@@ -228,14 +222,12 @@ body {
   backface-visibility: hidden;
 }
 
-/* Performance optimizations for smooth scrolling */
 .scroll-container {
   contain: layout style paint;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
 }
 
-/* Optimize heavy animations */
 .animate-optimized {
   will-change: transform, opacity;
   transform: translateZ(0);
@@ -243,7 +235,6 @@ body {
   perspective: 1000px;
 }
 
-/* Reduce paint and layout thrashing */
 .gpu-accelerated {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
@@ -251,18 +242,11 @@ body {
   backface-visibility: hidden;
 }
 
-/* Smooth transitions for all interactive elements - removed to eliminate fade effects */
-/* a, button, [role="button"] {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-} */
-
-/* Optimize scroll performance */
 .scroll-smooth {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -277,40 +261,23 @@ body {
   }
 }
 
-
-/* Ensure hero content stays above the background */
 .hero-content {
   position: relative;
   z-index: 10;
 }
 
-/* Ensure proper canvas rendering */
 canvas {
   max-width: 100% !important;
   height: auto !important;
   border-radius: inherit;
 }
 
-/* ---------- Custom Scrollbar Styles ---------- */
 
-/* Variables for easy customization */
-:root {
-    --sb-width: 12px;
-    /* Using Tailwind's gray-500 for the color inspiration */
-    --sb-thumb-color: rgba(107, 114, 128, 0.5); /* Semi-transparent */
-    --sb-thumb-color-hover: rgb(107, 114, 128);   /* Opaque */
-}
-
-/* --- Firefox --- */
-/* Sets the scrollbar style for Firefox */
 html {
     scrollbar-width: thin;
-    scrollbar-color: var(--sb-thumb-color-hover) transparent; /* thumb, track */
+    scrollbar-color: var(--sb-thumb-color) transparent;
 }
 
-/* --- WebKit / Chromium (Chrome, Safari, Edge, etc.) --- */
-
-/* Sets the width/height of the scrollbar globally */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 *::-webkit-scrollbar {
@@ -318,53 +285,45 @@ body::-webkit-scrollbar,
     height: var(--sb-width);
 }
 
-/* Forces the track (the channel the thumb slides in) to be transparent */
 html::-webkit-scrollbar-track,
 body::-webkit-scrollbar-track,
 *:not(input):not(textarea)::-webkit-scrollbar-track {
     background: transparent;
+    border-radius: 20px;
+    margin-block: 0.5em; 
 }
 
-/* Styles the draggable thumb */
 html::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
-    /* A simple, semi-transparent background color */
     background-color: var(--sb-thumb-color);
     
-    /* This creates an "inset" effect, making the thumb appear padded */
     border: 3px solid transparent;
     background-clip: content-box;
-
-    /* Gives the thumb rounded corners */
     border-radius: 20px;
 }
-
-/* Makes the thumb fully opaque on hover for better user feedback */
 html::-webkit-scrollbar-thumb:hover,
 body::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:hover {
     background-color: var(--sb-thumb-color-hover);
 }
 
-/* Invisible scrollbar utility */
 .invisible-scrollbar {
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;  
 }
 
 .invisible-scrollbar::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and Opera */
+  display: none;
 }
 
-/* Custom scrollbar for sidebar recent chats */
 .sidebar-scrollbar {
-  scrollbar-width: thin; /* For Firefox */
+  scrollbar-width: thin;
   scrollbar-color: rgba(107, 114, 128, 0.6) transparent;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar {
-  width: 8px; /* Medium size scrollbar */
+  width: 8px; 
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-track {
@@ -375,10 +334,35 @@ body::-webkit-scrollbar-thumb:hover,
 .sidebar-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(107, 114, 128, 0.5);
   border-radius: 4px;
-  border: none; /* No border for flush appearance */
+  border: none; 
   background-clip: padding-box;
 }
 
 .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.8);
+}
+
+/* Light mode sidebar scrollbar */
+:root .sidebar-scrollbar {
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+}
+
+:root .sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+}
+
+:root .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.8);
+}
+
+.dark .sidebar-scrollbar {
+  scrollbar-color: rgba(107, 114, 128, 0.6) transparent;
+}
+
+.dark .sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.5);
+}
+
+.dark .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(107, 114, 128, 0.8);
 }

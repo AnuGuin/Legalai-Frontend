@@ -106,7 +106,7 @@ export default function ProfileDropdown({
                         <button
                             type="button"
                             className={cn(
-                                "flex items-center rounded-2xl  transition-all duration-200 focus:outline-none hover:bg-neutral-700",
+                                "flex items-center rounded-2xl  transition-all duration-200 focus:outline-none hover:bg-slate-200 dark:hover:bg-neutral-700",
                                 showUserDetails ? "gap-3 p-3 w-full" : "p-2 w-fit justify-center"
                             )}
                         >
@@ -138,9 +138,8 @@ export default function ProfileDropdown({
                         align={align}
                         sideOffset={sideOffset}
                         alignOffset={alignOffset}
-                        className="z-50 w-56 p-2 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)]
+                        className="z-50 w-56 p-2 backdrop-blur-sm border border-slate-200/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.1)] dark:shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] bg-white dark:bg-[rgb(53,53,53)]
                     data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-                        style={{ backgroundColor: 'rgb(53, 53, 53)' }}
                     >
 
                         {/* Menu Items */}
@@ -192,8 +191,7 @@ export default function ProfileDropdown({
                                             <DropdownMenuPortal>
                                                 <DropdownMenuSubContent
                                                     sideOffset={4}
-                                                    className="w-32 p-2 backdrop-blur-sm border border-zinc-400/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-                                                    style={{ backgroundColor: 'rgb(53, 53, 53)' }}
+                                                    className="w-32 p-2 backdrop-blur-sm border border-slate-200/60 dark:border-zinc-600/20 rounded-2xl shadow-[4px_8px_12px_2px_rgba(0,0,0,0.1)] dark:shadow-[4px_8px_12px_2px_rgba(0,0,0,0.2)] bg-white dark:bg-[rgb(53,53,53)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
                                                 >
                                                     <DropdownMenuRadioGroup value={theme}>
                                                         <DropdownMenuRadioItem

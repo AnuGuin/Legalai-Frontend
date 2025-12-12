@@ -54,12 +54,7 @@ function mergeMessages(currentMessages: Message[], newMessages: Message[]): Mess
 
 const BackgroundLayer: React.FC = () => (
   <div
-    className="absolute inset-0 z-0"
-    style={{
-      background: "rgb(33, 33, 33)",
-      backgroundSize: "30px 30px",
-      backgroundPosition: "0 0",
-    }}
+    className="absolute inset-0 z-0 bg-[#f8f9fa] dark:bg-[rgb(33,33,33)]"
   />
 );
 
@@ -428,7 +423,7 @@ export function ChatInterface({ user, onLogout, initialConversationId }: ChatInt
         className="flex-1 flex flex-col relative z-10 min-w-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{ maxWidth: "calc(100vw - 65px)" }}
       >
-        <div className="sticky top-0 z-20 bg-[rgb(33,33,33)]">
+        <div className="sticky top-0 z-20 bg-[#f8f9fa] dark:bg-[rgb(33,33,33)]">
           <ChatModeSelector
             variant={activeConversation ? "chat-selected" : "default"}
             onModeChange={handleModeChange}

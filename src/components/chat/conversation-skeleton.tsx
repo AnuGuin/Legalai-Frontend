@@ -6,8 +6,8 @@ export function ConversationSkeleton() {
       <div className="flex items-start gap-3 justify-end">
         <div className="w-full max-w-[300px] flex items-center gap-3 flex-row-reverse">
           <div className="w-full flex flex-col gap-2">
-            <Skeleton className="h-3 w-4/5 rounded-lg ml-auto bg-zinc-400 dark:bg-zinc-600" />
-            <Skeleton className="h-3 w-3/5 rounded-lg ml-auto bg-zinc-400 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-4/5 rounded-lg ml-auto bg-slate-300 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-3/5 rounded-lg ml-auto bg-slate-300 dark:bg-zinc-600" />
           </div>
         </div>
       </div>
@@ -15,10 +15,10 @@ export function ConversationSkeleton() {
       <div className="flex items-start gap-3">
         <div className="w-full max-w-[900px] flex items-center gap-3">
           <div className="w-full flex flex-col gap-2">
-            <Skeleton className="h-3 w-3/5 rounded-lg   bg-zinc-400 dark:bg-zinc-600" />
-            <Skeleton className="h-3 w-4/5 rounded-lg  bg-zinc-400 dark:bg-zinc-600" />
-            <Skeleton className="h-3 w-3/5 rounded-lg  bg-zinc-400 dark:bg-zinc-600" />
-            <Skeleton className="h-3 w-4/5 rounded-lg  bg-zinc-400 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-3/5 rounded-lg bg-slate-300 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-4/5 rounded-lg bg-slate-300 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-3/5 rounded-lg bg-slate-300 dark:bg-zinc-600" />
+            <Skeleton className="h-3 w-4/5 rounded-lg bg-slate-300 dark:bg-zinc-600" />
           </div>
         </div>
       </div>
